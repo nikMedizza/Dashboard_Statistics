@@ -224,7 +224,7 @@ Row
 ### Chart 1
     
 ```{r}
-
+data_per_game |> group_by(year)
 ```
    
 Row
