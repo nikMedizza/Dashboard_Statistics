@@ -1,0 +1,28 @@
+
+
+```{r}
+library(tidyverse)
+
+data1 <- read_csv(file = "data/player_Full_stats_23.csv")
+data2 <- read_csv(file = "data/player_valuations.csv")
+players <- read_csv(file = "data/players.csv")
+clubs <- read_csv(file = "data/clubs.csv")
+
+head(data1, n = 20)
+
+
+
+#merging the name of the club to its own corresponding club_id 
+fullPlayers <- left_join(players, clubs, join_by(current_club_id == club_id))
+head(fullPlayers)
+
+fullPlayers |> group_by(current_club_name,last_name ) |> summarise()
+
+
+```
+
+```{r}
+
+
+```
+

@@ -1,0 +1,222 @@
+---
+title: "Football_Analysis"
+format: html
+editor: visual
+---
+
+## Quarto
+
+Quarto enables you to weave together content and executable code into a finished document. To learn more about Quarto see <https://quarto.org>.
+
+## Running Code
+
+When you click the **Render** button a document will be generated that includes both content and the output of embedded code. You can embed code like this:
+
+```{r}
+
+library(tidyverse)
+
+#read the data
+data1 <- read_csv(file = "data/understat_per_game.csv")
+data2 <- read_csv(file = "data/understat.com.csv")
+
+data_per_club <- data2 |> 
+                 rename("league" = ...1,
+                        "year" = ...2)
+
+data_per_club <- data_per_club |> mutate(diff_Goals = scored - missed)
+head(data_per_club)
+
+data_per_game <- data1 |> 
+                 rename("stadium" = h_a,
+                        "exp_Goal" = xG) |>
+                 mutate("stadium" = as.factor(stadium), 
+                        "result" = as.factor(result), 
+                        "league" = as.factor(league),
+                        "pts" = as.factor(pts))
+                         
+head(data_per_game)
+
+statResum <- data_per_game |> group_by(year, league, team) |>
+                 summarise(avg_goal_per_match = mean(scored)) |> 
+                 filter(league == "Bundesliga", year == 2015) |>
+                 arrange(desc(avg_goal_per_match))
+head(statResum, n = 20)
+
+
+perTeam <- data_per_game |> group_by(year, league, team) |> 
+                 filter(year == 2015, league == "Bundesliga", team == "Bayern Munich") |>
+                 count(result)
+#here you could plot a chart to compare a time series of the xG per each league during the last five years
+dat1 <- data_per_game |> group_by(year, league) |>
+                  summarise(avg_Exp_goal = mean(exp_Goal))
+                  
+                  
+#expGoal per each league across different years 
+ggplot(dat1) + geom_point(aes(league, avg_Exp_goal)) + facet_wrap(~year)
+   
+
+```
+
+You can add options to executable code like this
+
+```{r}
+
+data_per_game |> filter(year == 2015) |> 
+      ggplot(aes(scored, missed))  + geom_point()
+
+data_per_game |> filter (year == 2016) |> group_by(league, pts) |> summarise(avg_ppda_Att = mean(ppda_att)) |> ggplot() + geom_point(aes(pts, avg_ppda_Att)) + facet_wrap(~league)
+  
+data_per_game |> filter(year == 2018) |> 
+                ggplot() + geom_point(aes(scored, exp_Goal)) + facet_wrap(~league)
+
+data_per_game |> filter(year == 2019, league == "Bundesliga", team == "Bayern Munich") |> 
+                  ggplot() + geom_point(aes(exp_Goal, xGA)) + facet_wrap(~stadium)
+
+data_per_game |> filter(year == 2019, league == "Bundesliga", team == "Borussia Dortmund") |> 
+                  ggplot() + geom_point(aes(exp_Goal, xGA))
+
+
+data_per_game |> filter(year == 2019, 
+                        league == "Bundesliga", 
+                        team == "Paderborn") |> 
+                  ggplot() + geom_point(aes(exp_Goal, xGA))
+
+#let's if there is a difference in xG and xGA playing at home or away
+data_per_game |> filter(year == 2019, 
+                        league == "Bundesliga",
+                        team == "Bayern Munich") |>
+                 group_by(stadium) |> 
+                 summarise(avg_exp_goal = mean(exp_Goal), 
+                           avg_exp_goal_A = mean(xGA))
+
+
+```
+
+The `echo: false` option disables the printing of code (only output is displayed).
+
+1.  <div>
+
+    ```{r}
+    library(ggrepel)
+     data1 <- data_per_club |> filter(year == 2019, league == "La_liga")
+     
+                     ggplot(data1, aes(missed, scored)) +
+                     geom_point(aes(color = team)) +
+                     ggrepel::geom_label_repel(aes(label = team), data = data1)
+
+     data_per_club |> 
+              filter(year == 2018) |> 
+              group_by(league) |>
+              ggplot() + geom_line(aes(position, pts, color = league)) 
+       
+     
+     
+                     
+    ```
+
+    </div>
+
+```{r}
+
+# average expected goal per season for each league      
+ data_per_club |> group_by(year, league) |>
+                  summarise(avg_exp_goal = mean(xG)) |>
+                  ggplot() + geom_bar(aes(x = league,
+                                          y = avg_exp_goal, 
+                                          fill = league), stat = "Identity") +                                                  facet_wrap(~year, nrow = 3)
+
+```
+
+```{r}
+ # a pattern where along the ranking decreasing relation btw xG and xGA almost the same for      each league
+data5<- data_per_club |> filter(year == 2017) |> 
+                          group_by(league)
+  
+                 ggplot(data5, aes(xGA, xG)) + geom_point() + facet_wrap(~league) +
+                 ggrepel::geom_label_repel(aes(label = position), 
+                                           data5, max.overlaps = 22, 
+                                           label.size = 0.05, 
+                                           label.padding = 0.12, 
+                                           point.padding = 0.12, 
+                                           box.padding = 0.09, 
+                                           force = 0.1) + 
+                  facet_wrap(~league, nrow = 2) 
+
+                 
+
+# the best teams are the ones that play deep a lot and the worst are the ones who allawed the    depth
+data_per_club |> filter(year == 2017) |> 
+                 group_by(league) |> 
+                 ggplot() + geom_point(aes(deep_allowed, deep)) + facet_wrap(~league)
+   
+ data_per_game |> group_by(year, league) |> 
+                 summarise(avg_deep = mean(deep)) |>
+                 ggplot() + geom_bar(aes(x = league,
+                                          y = avg_deep, 
+                                          fill = league), stat = "Identity") +                                                  facet_wrap(~year, nrow = 3)
+                            
+   
+   
+   
+```
+
+```{r}
+
+data_per_club |> group_by(year, league) |> 
+                 summarise(avg_pressure = mean(ppda_coef)) |> 
+                 ggplot() + geom_bar(aes(league, avg_pressure),
+                                     stat = "Identity") +
+                 facet_wrap(~ year)
+
+```
+
+```{r}
+
+# ranking  considering the differece in goals scored and received
+
+data_per_club |> filter(year == 2017, league == "EPL") |> 
+                 select(position, 
+                        team, 
+                        diff_Goals) |>                                                                          arrange(desc(diff_Goals))
+
+
+data_per_club |> filter(year == 2019, league == "EPL") |>
+                 ggplot() + 
+                 geom_line(aes(position, diff_Goals)) +
+                 geom_hline(yintercept = 0, color = "red", linewidth = 0.2) +
+                 geom_smooth(aes(position, diff_Goals))
+                 
+
+
+
+```
+
+```{r}
+
+# it seems that there is a significance difference btw an hypothetical ranking using xpts 
+# and the actual rank
+
+data_per_club |> filter(year == 2019, league == "EPL") |> 
+                 select(position, 
+                        team, 
+                        xpts,
+                        xG_diff) |>                                                                          arrange(desc(xpts))
+# let's try to find which variable could explain this behavior
+
+
+data_per_club |> filter(league == "EPL", year == 2019) |>
+                 ggplot(aes(xpts, scored)) + geom_point() + 
+                 geom_smooth(aes(xpts, scored)) +
+                 geom_point(aes(xpts, xG), color= "red") +
+                 geom_smooth(aes(xpts, xG), color = "red") + 
+                 ggrepel::geom_label_repel(aes(label = team),
+                                           box.padding = 0.1, 
+                                           label.padding = 0.1, 
+                                           min.segment.length = 0.1,
+                                           label.size = 0.09)
+
+# it seems that when scored is higher than xg this could explain why the team has a lower position in the ranking sorted with the tot xpts 
+# this theory is confirmed if we look at the xgDiff
+
+```

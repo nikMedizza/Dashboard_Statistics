@@ -1,0 +1,250 @@
+---
+title: "Football statistics dashboard"
+output: flexdashboard::flex_dashboard
+runtime: shiny
+---
+
+```{r setup, include = FALSE}
+library(flexdashboard) 
+library(tidyverse)
+library(ggrepel)
+knitr::opts_chunk$set(fig.width = 5)
+
+#read the data
+data1 <- read_csv(file = "data/understat_per_game.csv")
+data2 <- read_csv(file = "data/understat.com.csv")
+
+data_per_club <- data2 |> 
+                 rename("league" = ...1,
+                        "year" = ...2)
+
+data_per_club <- data_per_club |> mutate(diff_Goals = scored - missed)
+head(data_per_club)
+
+data_per_game <- data1 |> 
+                 rename("stadium" = h_a,
+                        "exp_Goal" = xG) |>
+                 mutate("stadium" = as.factor(stadium), 
+                        "result" = as.factor(result), 
+                        "league" = as.factor(league),
+                        "pts" = as.factor(pts))
+
+```
+
+
+Bundesliga
+==========================
+
+column
+--------------------------------
+
+
+```{r}
+selectInput("variable", "Choose a league:",
+                c("Bundesliga" = "Bundesliga",
+                  "Premier League" = "EPL",
+                  "Serie A" = "Serie_A",
+                  "La Liga" = "La_liga", 
+                  "Ligue 1" = "Ligue_1"))
+
+
+renderTable({data_per_club |> filter(year == 2017, league == input$variable) |> select(position, team, pts)} )
+
+
+```
+
+
+Column {.tabset}
+----------------------------------
+
+### chart 1
+
+```{r}
+# it seems that there is a significance difference btw an hypothetical ranking using xpts 
+# and the actual rank
+# let's try to find which variable could explain this behavior
+
+
+renderPlot({data_per_club |> filter(league == "EPL", year == 2019) |>
+                 ggplot(aes(xpts, scored)) + geom_point() + 
+                 geom_smooth(aes(xpts, scored)) +
+                 geom_point(aes(xpts, xG), color= "red") +
+                 geom_smooth(aes(xpts, xG), color = "red") + 
+                 ggrepel::geom_label_repel(aes(label = team),
+                                           box.padding = 0.1, 
+                                           label.padding = 0.1, 
+                                           min.segment.length = 0.1,
+                                           label.size = 0.09)})
+
+# it seems that when scored is higher than xg this could explain why the team has a lower position in the ranking sorted with the tot xpts 
+# this theory is confirmed if we look at the xgDiff
+```
+
+### chart 2
+
+```{r}
+renderPlot({data_per_club |> group_by(year, league) |>
+                  summarise(avg_exp_goal = mean(xG)) |>
+                  ggplot() + geom_bar(aes(x = league,
+                                          y = avg_exp_goal, 
+                                          fill = league), stat = "Identity") +                                                  facet_wrap(~year, nrow = 3)})
+```
+
+### chart 3
+
+```{r}
+renderPlot({data_per_club |> filter(year == 2019, league == "EPL") |>
+                 ggplot() + 
+                 geom_line(aes(position, diff_Goals)) +
+                 geom_hline(yintercept = 0, color = "red", linewidth = 0.2) +
+                 geom_smooth(aes(position, diff_Goals))})
+
+```
+
+Premier League {data-orientation=rows}
+==============================
+
+Row
+----------------------------
+### chart 1
+
+```{r}
+
+
+
+```
+
+Row {.tabset .tabset-fade}
+----------------------------
+
+### chart 2
+
+```{r}
+
+
+```
+
+
+### chart 3
+
+```{r}
+
+```
+
+La Liga {data-orientation=columns}
+============================
+
+row
+---------------------------
+
+### chart 1
+
+```{r}
+data1 <- data_per_club |> filter(year == 2019, league == "La_liga")
+ 
+            renderPlot({ ggplot(data1, aes(missed, scored)) +
+                 geom_point(aes(color = team)) +
+                 ggrepel::geom_label_repel(aes(label = team), data = data1) })  
+
+
+```
+
+### chart 2
+
+```{r}
+ renderPlot({data_per_club |> 
+          filter(year == 2018) |> 
+          group_by(league) |>
+          ggplot() + geom_line(aes(position, pts, color = league))})
+```
+
+Row
+-------------------------
+
+### chart 3 
+
+```{r}
+
+renderPlot({data_per_game |> filter(year == 2018) |> 
+                ggplot() + geom_point(aes(scored, exp_Goal)) + facet_wrap(~league)})
+
+```
+
+
+### chart 4 
+
+```{r}
+
+dat1 <- data_per_game |> group_by(year, league) |>
+                  summarise(avg_Exp_goal = mean(exp_Goal))
+                  
+                  
+#expGoal per each league across different years 
+renderPlot({ggplot(dat1) + geom_point(aes(league, avg_Exp_goal)) + facet_wrap(~year)})
+   
+
+```
+
+
+Serie A
+==========================
+
+Row
+-------------------------------------
+    
+### Chart 1
+    
+```{r}
+
+```
+   
+Row
+-------------------------------------
+    
+### Chart 2
+    
+```{r}
+
+```
+    
+### Chart 3
+
+```{r}
+
+```
+
+
+
+Ligue 1
+==========================
+
+Row
+-------------------------------------
+    
+### Chart 1
+    
+```{r}
+
+```
+   
+Row
+-------------------------------------
+    
+### Chart 2
+    
+```{r}
+
+```
+    
+### Chart 3
+
+```{r}
+
+```
+
+
+
+
+
+
+
