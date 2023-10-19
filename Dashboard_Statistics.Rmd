@@ -29,20 +29,60 @@ library(DT)
 data1 <- read_csv(file = "data/understat_per_game.csv")
 data2 <- read_csv(file = "data/understat.com.csv")
 
-data_per_club <- data2 |> 
-                 rename("league" = ...1,
-                        "year" = ...2)
+colnames_1 = c("league", "year", "stadium", "exp_goal", "exp_goal_against", 
+               "no_pen_exp_goal", "no_pen_exp_goal_against", "deep", 
+               "deep_allowed", "scored", "conceded", "exp_pts", "result", "date", 
+               "wins", "draws", "loses", "pts", "no_pen_exp_goal_diff", "ppda_coef", 
+               "ppda_att", "ppda_def", "oppda_coef", "oppda_att", "oppda_def", 
+               "team", "exp_goal_diff", "exp_goal_against_diff", 
+               "exp_pts_diff")
 
-data_per_club <- data_per_club |> mutate(diff_Goals = scored - missed)
-head(data_per_club)
+colnames(data1) = colnames_1
+
+colnames_2 = c("league", "year", "position", "team", "matches", "wins", "draws", 
+               "loses", "scored", "conceded", "pts", "exp_goal", "exp_goal_diff", 
+               "no_pen_exp_goal", "exp_goal_against", "exp_goal_against_diff", 
+               "no_pen_exp_goal_against", 
+               "no_pen_exp_goal_diff", "ppda_coef", "oppda_coef", "deep", 
+               "deep_allowed", "exp_pts", "exp_pts_diff")
+
+colnames(data2) = colnames_2
 
 data_per_game <- data1 |> 
-                 rename("stadium" = h_a,
-                        "exp_Goal" = xG) |>
-                 mutate("stadium" = as.factor(stadium), 
-                        "result" = as.factor(result), 
-                        "league" = as.factor(league),
-                        "pts" = as.factor(pts))
+  mutate("stadium" = as.factor(stadium), 
+         "result" = as.factor(result), 
+         "league" = as.factor(league),
+         "pts" = as.factor(pts)) |> 
+  filter(league != "RFPL")
+
+data_per_club <- data2 |> 
+  filter(league != "RFPL") |> 
+  mutate("goal_diff" = scored - conceded)
+
+## Check to see no duplicates and the pairing of opponent is done correctly on a 1-1 basis
+length(data_per_game$league[duplicated(cbind(data_per_game$league, 
+                                             data_per_game$year, 
+                                             data_per_game$date, 
+                                             data_per_game$scored, 
+                                             data_per_game$conceded, 
+                                             data_per_game$exp_goal_against, 
+                                             data_per_game$exp_goal, 
+                                             data_per_game$ppda_coef, 
+                                             data_per_game$oppda_coef))])
+
+## Link opponents to each respective match
+temp_opponents = data_per_game |> select(league, year, date, scored, 
+                                         conceded, exp_goal_against, exp_goal, 
+                                         ppda_coef, oppda_coef, "opponent" = team)
+
+data_per_game = data_per_game |> 
+  left_join(temp_opponents, by = c("league" = "league", "year" = "year", 
+                                   "date" = "date", "scored" = "conceded", 
+                                   "conceded" = "scored", 
+                                   "exp_goal_against" = "exp_goal", 
+                                   "exp_goal" = "exp_goal_against", 
+                                   "ppda_coef" = "oppda_coef", 
+                                   "oppda_coef" = "ppda_coef"))
 
 
 ```
