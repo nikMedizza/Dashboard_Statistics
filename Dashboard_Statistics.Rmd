@@ -67,7 +67,7 @@ selectInput("season", "Choose a competition:",
                   "Serie A" = "Serie_A",
                   "La Liga" = "La_liga", 
                   "Ligue 1" = "Ligue_1", 
-                  "Liga Bet Play" = "Liguita"))
+                  ))
 ```
 
 
@@ -287,7 +287,7 @@ Options {.sidebar}
 ------------------------
 
 ```{r}
-selectInput("season", "Choose a competizione:",
+selectInput("season", "Choose a competition:",
                 c("Bundesliga" = "Bundesliga",
                   "Premier League" = "EPL",
                   "Serie A" = "Serie_A",
