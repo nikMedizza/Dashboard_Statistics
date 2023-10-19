@@ -1,14 +1,29 @@
 ---
 title: "Football statistics dashboard"
-output: flexdashboard::flex_dashboard
+output:
+  flexdashboard::flex_dashboard:
+    vertical_layout: scroll
 runtime: shiny
 ---
+
+<style>
+  .center-text {
+    text-align: center;
+  }
+</style>
+
+<div class="center-text">
+  The best interactive dashboard on the market with statistics about football in the top 5 leagues
+</div>
+
 
 ```{r setup, include = FALSE}
 library(flexdashboard) 
 library(tidyverse)
 library(ggrepel)
-knitr::opts_chunk$set(fig.width = 5)
+library(DT)
+#knitr::opts_chunk$set(fig.width = 5)
+
 
 #read the data
 data1 <- read_csv(file = "data/understat_per_game.csv")
@@ -29,15 +44,164 @@ data_per_game <- data1 |>
                         "league" = as.factor(league),
                         "pts" = as.factor(pts))
 
+
 ```
 
 
-Bundesliga
+
+
+
+Team {data-icon="fa-futbol" data-orientation=rows}
 ==========================
 
-column
---------------------------------
 
+Options {.sidebar}
+------------------------
+
+```{r}
+
+#data-icon="fa-table"
+selectInput("season", "Choose a league:",
+                c("Bundesliga" = "Bundesliga",
+                  "Premier League" = "EPL",
+                  "Serie A" = "Serie_A",
+                  "La Liga" = "La_liga", 
+                  "Ligue 1" = "Ligue_1"))
+```
+
+
+```{r}
+selectInput("nation", "Choose a league:",
+                c("Bundesliga" = "Bundesliga",
+                  "Premier League" = "EPL",
+                  "Serie A" = "Serie_A",
+                  "La Liga" = "La_liga", 
+                  "Ligue 1" = "Ligue_1"))
+
+
+```
+
+```{r}
+selectInput("league", "Choose a league:",
+                c("Bundesliga" = "Bundesliga",
+                  "Premier League" = "EPL",
+                  "Serie A" = "Serie_A",
+                  "La Liga" = "La_liga", 
+                  "Ligue 1" = "Ligue_1"))
+
+```
+
+
+tabset
+-----------------------------------
+
+### tab1 
+
+here we can see how the player
+
+
+row
+---------------------------
+
+
+
+### Final Position
+```{r fig.width=1, fig.height=0.5}
+
+valueBox(1, caption = "Placement", icon = "fa-thumbs-up")
+
+```
+
+### box 2
+```{r fig.width=1, fig.height=1}
+
+gauge(10, min = 0, max = 18, gaugeSectors(
+  success = c(11,18), warning = c(5, 10), danger = c(0, 4)))
+
+```
+> number of matches won played at "home" and "away"
+
+### box 2
+```{r fig.width=1, fig.height=1}
+
+gauge(8, min = 0, max = 18, gaugeSectors(
+  success = c(11,18), warning = c(5, 10), danger = c(0, 4)))
+
+```
+> the most important summary statistics for the season
+
+### box 3
+```{r fig.width=1, fig.height=1}
+
+gauge(18, min = 0, max = 38, gaugeSectors(
+  success = c(80, 100), warning = c(40, 79), danger = c(0, 39)))
+
+```
+> the most important summary statistics for the season
+
+### box 3
+```{r fig.width=1, fig.height=1}
+
+gauge(18, min = 0, max = 38, gaugeSectors(
+  success = c(80, 100), warning = c(40, 79), danger = c(0, 39)))
+
+```
+
+> the most important summary statistics for the season
+
+row
+----------------------------------
+
+### chart 4 
+
+```{r}
+
+renderPlot({data_per_club |> group_by(year, league) |>
+                  summarise(avg_exp_goal = mean(xG)) |>
+                  ggplot() + geom_bar(aes(x = league,
+                                          y = avg_exp_goal, 
+                                          fill = league), stat = "Identity") +                                                  facet_wrap(~year, nrow = 3)})
+
+```
+> the most important summary statistics for the season 
+> the most important summary statistics for the season
+
+### chart 5 
+
+```{r}
+
+renderPlot({data_per_club |> group_by(year, league) |>
+                  summarise(avg_exp_goal = mean(xG)) |>
+                  ggplot() + geom_bar(aes(x = league,
+                                          y = avg_exp_goal, 
+                                          fill = league), stat = "Identity") +                                                  facet_wrap(~year, nrow = 3)})
+
+```
+
+row {.tabset}
+--------------------------
+
+### chart 4 
+
+```{r}
+
+renderPlot({data_per_club |> group_by(year, league) |>
+                  summarise(avg_exp_goal = mean(xG)) |>
+                  ggplot() + geom_bar(aes(x = league,
+                                          y = avg_exp_goal, 
+                                          fill = league), stat = "Identity") +                                                  facet_wrap(~year, nrow = 3)})
+
+```
+
+
+
+
+
+National League {data-icon="fa-shield"}
+==============================
+
+Options {.sidebar}
+------------------------
 
 ```{r}
 selectInput("variable", "Choose a league:",
@@ -46,100 +210,123 @@ selectInput("variable", "Choose a league:",
                   "Serie A" = "Serie_A",
                   "La Liga" = "La_liga", 
                   "Ligue 1" = "Ligue_1"))
-
-
-renderTable({data_per_club |> filter(year == 2017, league == input$variable) |> select(position, team, pts)} )
-
-
 ```
 
-
-Column {.tabset}
-----------------------------------
-
-### chart 1
 
 ```{r}
-# it seems that there is a significance difference btw an hypothetical ranking using xpts 
-# and the actual rank
-# let's try to find which variable could explain this behavior
+selectInput("nation", "Choose a league:",
+                c("Bundesliga" = "Bundesliga",
+                  "Premier League" = "EPL",
+                  "Serie A" = "Serie_A",
+                  "La Liga" = "La_liga", 
+                  "Ligue 1" = "Ligue_1"))
 
 
-renderPlot({data_per_club |> filter(league == "EPL", year == 2019) |>
-                 ggplot(aes(xpts, scored)) + geom_point() + 
-                 geom_smooth(aes(xpts, scored)) +
-                 geom_point(aes(xpts, xG), color= "red") +
-                 geom_smooth(aes(xpts, xG), color = "red") + 
-                 ggrepel::geom_label_repel(aes(label = team),
-                                           box.padding = 0.1, 
-                                           label.padding = 0.1, 
-                                           min.segment.length = 0.1,
-                                           label.size = 0.09)})
-
-# it seems that when scored is higher than xg this could explain why the team has a lower position in the ranking sorted with the tot xpts 
-# this theory is confirmed if we look at the xgDiff
 ```
-
-### chart 2
 
 ```{r}
-renderPlot({data_per_club |> group_by(year, league) |>
-                  summarise(avg_exp_goal = mean(xG)) |>
-                  ggplot() + geom_bar(aes(x = league,
-                                          y = avg_exp_goal, 
-                                          fill = league), stat = "Identity") +                                                  facet_wrap(~year, nrow = 3)})
-```
-
-### chart 3
-
-```{r}
-renderPlot({data_per_club |> filter(year == 2019, league == "EPL") |>
-                 ggplot() + 
-                 geom_line(aes(position, diff_Goals)) +
-                 geom_hline(yintercept = 0, color = "red", linewidth = 0.2) +
-                 geom_smooth(aes(position, diff_Goals))})
+selectInput("league", "Choose a league:",
+                c("Bundesliga" = "Bundesliga",
+                  "Premier League" = "EPL",
+                  "Serie A" = "Serie_A",
+                  "La Liga" = "La_liga", 
+                  "Ligue 1" = "Ligue_1"))
 
 ```
 
-Premier League {data-orientation=rows}
-==============================
 
-Row
+column
 ----------------------------
+
+
+### summary chart
+```{r}
+
+
+
+```
+
+
+
+
+
+### table
+
+
+```{r}
+renderTable({
+      data_per_club |> filter(year == 2017, league == input$variable) |> select(position, team, pts, )
+                }, digits = 0)
+
+```
+
+
+column  {.tabset}
+-------------------------------
+
 ### chart 1
 
 ```{r}
 
 
-
 ```
 
-Row {.tabset .tabset-fade}
-----------------------------
 
 ### chart 2
 
 ```{r}
 
-
 ```
 
-
-### chart 3
-
-```{r}
-
-```
-
-La Liga {data-orientation=columns}
+Comparison across leagues {data-orientation=columns, data-icon="fa-globe"}
 ============================
 
-row
----------------------------
 
-### chart 1
+Options {.sidebar}
+------------------------
 
 ```{r}
+selectInput("season", "Choose a league:",
+                c("Bundesliga" = "Bundesliga",
+                  "Premier League" = "EPL",
+                  "Serie A" = "Serie_A",
+                  "La Liga" = "La_liga", 
+                  "Ligue 1" = "Ligue_1"))
+```
+
+
+```{r}
+selectInput("nation", "Choose a league:",
+                c("Bundesliga" = "Bundesliga",
+                  "Premier League" = "EPL",
+                  "Serie A" = "Serie_A",
+                  "La Liga" = "La_liga", 
+                  "Ligue 1" = "Ligue_1"))
+
+
+```
+
+```{r}
+selectInput("league", "Choose a league:",
+                c("Bundesliga" = "Bundesliga",
+                  "Premier League" = "EPL",
+                  "Serie A" = "Serie_A",
+                  "La Liga" = "La_liga", 
+                  "Ligue 1" = "Ligue_1"))
+
+```
+
+
+
+
+column 
+---------------------------
+
+
+
+### chart 1 
+
+```{r, fig.height=3}
 data1 <- data_per_club |> filter(year == 2019, league == "La_liga")
  
             renderPlot({ ggplot(data1, aes(missed, scored)) +
@@ -158,7 +345,8 @@ data1 <- data_per_club |> filter(year == 2019, league == "La_liga")
           ggplot() + geom_line(aes(position, pts, color = league))})
 ```
 
-Row
+
+column
 -------------------------
 
 ### chart 3 
@@ -169,79 +357,6 @@ renderPlot({data_per_game |> filter(year == 2018) |>
                 ggplot() + geom_point(aes(scored, exp_Goal)) + facet_wrap(~league)})
 
 ```
-
-
-### chart 4 
-
-```{r}
-
-dat1 <- data_per_game |> group_by(year, league) |>
-                  summarise(avg_Exp_goal = mean(exp_Goal))
-                  
-                  
-#expGoal per each league across different years 
-renderPlot({ggplot(dat1) + geom_point(aes(league, avg_Exp_goal)) + facet_wrap(~year)})
-   
-
-```
-
-
-Serie A
-==========================
-
-Row
--------------------------------------
-    
-### Chart 1
-    
-```{r}
-
-```
-   
-Row
--------------------------------------
-    
-### Chart 2
-    
-```{r}
-
-```
-    
-### Chart 3
-
-```{r}
-
-```
-
-
-
-Ligue 1
-==========================
-
-Row
--------------------------------------
-    
-### Chart 1
-    
-```{r}
-data_per_game |> group_by(year)
-```
-   
-Row
--------------------------------------
-    
-### Chart 2
-    
-```{r}
-
-```
-    
-### Chart 3
-
-```{r}
-
-```
-
 
 
 
