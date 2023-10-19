@@ -61,12 +61,13 @@ Options {.sidebar}
 ```{r}
 
 #data-icon="fa-table"
-selectInput("season", "Choose a league:",
+selectInput("season", "Choose a competition:",
                 c("Bundesliga" = "Bundesliga",
                   "Premier League" = "EPL",
                   "Serie A" = "Serie_A",
                   "La Liga" = "La_liga", 
-                  "Ligue 1" = "Ligue_1"))
+                  "Ligue 1" = "Ligue_1", 
+                  "Liga Bet Play" = "Liguita"))
 ```
 
 
