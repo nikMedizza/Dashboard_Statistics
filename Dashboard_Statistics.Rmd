@@ -286,7 +286,7 @@ Options {.sidebar}
 ------------------------
 
 ```{r}
-selectInput("season", "Choose a league:",
+selectInput("season", "Choose a competizione:",
                 c("Bundesliga" = "Bundesliga",
                   "Premier League" = "EPL",
                   "Serie A" = "Serie_A",
