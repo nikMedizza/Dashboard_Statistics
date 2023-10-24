@@ -101,9 +101,8 @@ Options {.sidebar}
 
 ```{r}
 
-#library(flexdashboard)
-#data-icon="fa-table"
-selectInput("team_league", "Choose a competition:",
+
+selectInput("season", "Choose a competition:",
                 c("Bundesliga" = "Bundesliga",
                   "Premier League" = "EPL",
                   "Serie A" = "Serie_A",
@@ -369,9 +368,7 @@ column
 
 
 ```{r}
-renderTable({
-      data_per_club |> filter(year == 2017, league == input$variable) |> select(position, team, pts, )
-                }, digits = 0)
+
 
 ```
 
@@ -393,88 +390,204 @@ column  {.tabset}
 
 ```
 
-Comparison across leagues {data-orientation=columns, data-icon="fa-globe"}
-============================
+Comparison across leagues {data-orientation=rows data-icon="fa-globe"}
+=================================
 
 
 Options {.sidebar}
 ------------------------
 
 ```{r}
-selectInput("season", "Choose a competition:",
-                c("Bundesliga" = "Bundesliga",
-                  "Premier League" = "EPL",
-                  "Serie A" = "Serie_A",
-                  "La Liga" = "La_liga", 
-                  "Ligue 1" = "Ligue_1"))
+selectInput("year_season", "Choose the season:",
+                c("2014/2015" = 2014,
+                  "2015/2016" = 2015,
+                  "2016/2017" = 2016,
+                  "2017/2018" = 2017, 
+                  "2018/2019" = 2018,
+                  "2019/2020" = 2019))
 ```
+
 
 
 ```{r}
-selectInput("nation", "Choose a league:",
-                c("Bundesliga" = "Bundesliga",
-                  "Premier League" = "EPL",
-                  "Serie A" = "Serie_A",
-                  "La Liga" = "La_liga", 
-                  "Ligue 1" = "Ligue_1"))
+# Define the checkbox group input
+checkboxGroupInput("select_options", "Select the leagues:", 
+                   choices = c("Bundesliga", "EPL", "Serie_A","La_liga" ,"Ligue_1"),
+                   selected = c("Bundesliga", "EPL", "Serie_A","La_liga" ,"Ligue_1"))
+
 
 
 ```
+
+
+row  {data-orentation=columns data-height=250}
+---------------------------------
+
+### tab1 
+
+```{r, fig.width=3}
+
+renderTable({
+      data_per_club |> filter(year == input$year_season, position == 1) |> 
+      select(year,league, team:pts, exp_pts, exp_goal) }, digits = 0, align = "l", spacing = "s")
+
+```
+
+
+row 
+----------------------------------
+
+### chart 0
 
 ```{r}
-selectInput("league", "Choose a league:",
-                c("Bundesliga" = "Bundesliga",
-                  "Premier League" = "EPL",
-                  "Serie A" = "Serie_A",
-                  "La Liga" = "La_liga", 
-                  "Ligue 1" = "Ligue_1"))
+
+    renderPlot({data_per_club |> filter(league %in% input$select_options) |> ggplot() + geom_boxplot(aes(league, scored)) +
+                 geom_boxplot(aes(league, exp_goal), color = "lightblue") + facet_wrap(~ year) })
 
 ```
 
-
-
-
-column 
----------------------------
-
-
+row
+-------------------------------
 
 ### chart 1 
 
 ```{r, fig.height=3}
-data1 <- data_per_club |> filter(year == 2019, league == "La_liga")
- 
-            renderPlot({ ggplot(data1, aes(missed, scored)) +
-                 geom_point(aes(color = team)) +
-                 ggrepel::geom_label_repel(aes(label = team), data = data1) })  
+
+data_per_game <-data_per_game |> mutate("date" = as.Date(date, "%Y-%m-%d"))
+
+data_per_game1 <- data_per_game |> 
+                  group_by(year, league, team) |> 
+                  mutate("match_day" = row_number())
+
+
+
+renderPlot({data_per_club |> filter(year == input$year_season, position <= 10, league %in% input$select_options) |> 
+                 ggplot() + geom_line(aes(position, goal_diff, color = league))})                                  
+# as an alternative focus on a particolar year
+
+#teams_per_league <- data_per_club|> filter(year == 2018, league == "Bundesliga") |> count()
+
+
 
 
 ```
 
-### chart 2
+
+### chart 2 
+
 
 ```{r}
- renderPlot({data_per_club |> 
-          filter(year == 2018) |> 
-          group_by(league) |>
-          ggplot() + geom_line(aes(position, pts, color = league))})
+
+renderPlot({data_per_club |> filter(year == input$year_season, league %in% input$select_options) |> 
+                 group_by(league) |> summarise(avg_opp_pressure = mean(ppda_coef)) |>
+                 ggplot() + geom_bar(aes(league, avg_opp_pressure), stat = "Identity")
+})
 ```
 
 
-column
--------------------------
+row {.tabset}
+---------------------------------
 
 ### chart 3 
 
 ```{r}
 
-renderPlot({data_per_game |> filter(year == 2018) |> 
-                ggplot() + geom_point(aes(scored, exp_Goal)) + facet_wrap(~league)})
+
+
+renderPlot({data_per_game1 |> filter(year == input$year_season, league %in% input$select_options ) |> group_by(match_day) |> 
+                  summarise(avg_goal_per_day = sum(scored)/10, avg_exp_goal = sum(exp_goal)/10) |>
+                    ggplot() + geom_bar(aes(match_day, avg_goal_per_day),  fill="white", stat = "Identity") +    
+    theme_dark() + geom_line(aes(match_day, avg_exp_goal), 
+                                       color = "red", 
+                                       linewidth = 0.5, 
+                                       linetype = "dashed")
+  
+})
 
 ```
 
 
 
+### average goal scored per match played
 
+```{r}
+
+renderPlot({data_per_game1 |> filter(year == input$year_season, league %in% input$select_options) |> group_by(league, match_day) |> 
+    summarise(avg_goal_per_day = sum(scored)/10) |>
+               ggplot() + geom_line(aes(match_day, avg_goal_per_day, color = league), linetype = 2) +
+               geom_smooth(aes(match_day, avg_goal_per_day, color = league), se = FALSE)
+})
+
+```
+
+
+
+### average expected goal per game played
+
+```{r}
+
+# try to change the intensity of of the lines so that it's easier to get the trend per league
+# fix also the denominator in the division for the exact number of matches played
+
+renderPlot({data_per_game1 |> filter(league %in% input$select_options) |> group_by(year, league, match_day) |>
+                                          summarise(avg_exp_goal = sum(exp_goal)/10) |> 
+                                          ggplot() + geom_line(aes(match_day, 
+                                                                   avg_exp_goal,
+                                                                   color = league), linetype = 6, linewidth = 0.3) +
+                                          geom_smooth(aes(match_day, avg_exp_goal, color = league), se = FALSE) +
+                                          facet_wrap(~ year)})
+
+              
+```
+
+
+### chart 7
+
+```{r}
+
+renderPlot({data_per_club |> filter(year == input$year_season, league %in% input$select_options) |> group_by(league) |>
+                 ggplot() + geom_point(aes(scored, deep)) +
+                 geom_smooth(aes(scored, deep)) + facet_wrap(~league) })
+
+
+```
+
+
+
+column
+-------------------------
+
+### plot 7
+
+```{r}
+
+ renderPlot({
+          
+     data_per_club |> filter(position == 1, year == input$year_season, league %in% input$select_options) |> 
+       ggplot( aes(x = team)) + 
+       geom_bar(aes(y = exp_goal), position = "dodge", stat = "Identity") +
+       geom_point(aes(y = scored), shape = 17, size = 4, color = "red")
+     
+   })
+
+
+```
+
+
+
+### chart 6
+
+```{r}
+
+renderPlot({
+          
+     data_per_club |> filter(position == 1, year == input$year_season, league %in% input$select_options) |> 
+       ggplot( aes(x = team)) + 
+       geom_bar(aes(y = exp_pts), position = "dodge", stat = "Identity") +
+       geom_point(aes(y = pts), shape = 17, size = 4, color = "blue")
+     
+   })
+  
+```
 
 
