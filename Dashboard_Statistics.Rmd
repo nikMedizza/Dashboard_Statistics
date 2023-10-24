@@ -22,6 +22,7 @@ library(flexdashboard)
 library(tidyverse)
 library(ggrepel)
 library(DT)
+library(shiny)
 #knitr::opts_chunk$set(fig.width = 5)
 
 
@@ -99,38 +100,78 @@ Options {.sidebar}
 ------------------------
 
 ```{r}
-library(flexdashboard)
+
+#library(flexdashboard)
 #data-icon="fa-table"
-selectInput("season", "Choose a competition:",
+selectInput("team_league", "Choose a competition:",
                 c("Bundesliga" = "Bundesliga",
                   "Premier League" = "EPL",
                   "Serie A" = "Serie_A",
                   "La Liga" = "La_liga", 
                   "Ligue 1" = "Ligue_1" 
                   ))
-```
-
-
-```{r}
-selectInput("nation", "Choose a league:",
-                c("Bundesliga" = "Bundesliga",
-                  "Premier League" = "EPL",
-                  "Serie A" = "Serie_A",
-                  "La Liga" = "La_liga", 
-                  "Ligue 1" = "Ligue_1"))
-
 
 ```
 
 ```{r}
-selectInput("league", "Choose a league:",
-                c("Bundesliga" = "Bundesliga",
-                  "Premier League" = "EPL",
-                  "Serie A" = "Serie_A",
-                  "La Liga" = "La_liga", 
-                  "Ligue 1" = "Ligue_1"))
+
+selectInput("team_year", "Choose a season:",
+                c("2014-2015" = "2014",
+                  "2015-2016" = "2015",
+                  "2016-2017" = "2016",
+                  "2017-2018" = "2017", 
+                  "2018-2019" = "2018", 
+                  "2019-2020" = "2019"))
 
 ```
+
+```{r}
+
+teams = reactive({return(sort(filter(data_per_club, league == input$team_league, year == input$team_year)$team))})
+
+teams_opp = reactive({return(sort(filter(data_per_club, league == input$team_league, year == input$team_year, team != input$team_team)$team))})
+
+#renderTable(filter(data_per_club, league == input$team_league, year == input$team_year)$team)
+
+#reactiveValuesToList(teams)
+##teams_final = c()
+#reactive({
+#  teams_final = c()
+#  for (i in teams()){
+#    teams_final = cbind(teams_final, i)
+#  }
+#  selectInput("team_team", "Choose a team:", teams_final)
+#})
+
+#print(str(teams_final))
+
+
+selectInput("team_team", "Choose a team:", c(""))
+
+selectInput("team_opp", "Choose a team for Head to Head comparison:", c(""))
+
+#actionButton("prueba", "Probando")
+
+#equipo = reactive(input$team_team)
+#anio = reactive(input$team_year)
+#liga = reactive(input$team_league)
+
+#reactive(print(input$team_team))
+
+#observeEvent(input$prueba, renderPrint(anio(), liga()))
+
+#,warning = FALSE,results='hide'
+reactive(updateSelectInput(inputId = "team_team", choices = teams()))
+
+reactive(updateSelectInput(inputId = "team_opp", choices = teams_opp()))
+
+#position = reactive(as.character(filter(data_per_club, league == input$team_league, year == input$team_year, team = input$team_team)$position[1]))
+
+#renderTable(filter(data_per_club, league == input$team_league, year == input$team_year, team = input$team_team)$position[1])
+
+```
+
+
 
 
 tabset
@@ -138,40 +179,65 @@ tabset
 
 ### tab1 
 
-here we can see how the player
+Here we can see the main statistics for the team (insert team name) and their historic results against team (insert opponents name)
 
 
 row
 ---------------------------
 
-
-
 ### Final Position
 ```{r fig.width=1, fig.height=0.5}
 
-valueBox(1, caption = "Placement", icon = "fa-thumbs-up")
+renderValueBox({
+  position = filter(data_per_club, league == input$team_league, year == input$team_year, team == input$team_team)$position[1]
+  
+  box_icon = ""
+  
+  if(position == 1){
+    box_icon = "ion-trophy"
+  } else if(position <= 3){
+    box_icon = "ion-ribbon-a"
+  } else if(position <= 10){
+    box_icon = "ion-android-happy"
+  } else{
+    box_icon = "ion-android-sad"
+  }
+  
+  valueBox(value = position, icon = box_icon)
+})
 
 ```
 
-### box 2
+### Matches Won
 ```{r fig.width=1, fig.height=1}
 
-gauge(10, min = 0, max = 18, gaugeSectors(
-  success = c(11,18), warning = c(5, 10), danger = c(0, 4)))
+renderGauge({
+  matches_played = filter(data_per_club, league == input$team_league, year == input$team_year, team == input$team_team)$matches
+  matches_won = filter(data_per_club, league == input$team_league, year == input$team_year, team == input$team_team)$wins
+  
+  gauge(matches_won, min = 0, max = matches_played, gaugeSectors(
+  success = c(2*matches_played/3, matches_played), warning = c(matches_played/3, 2*matches_played/3), danger = c(0, matches_played/3), colors = c("mediumseagreen", "palegoldenrod", "lightcoral")))
+})
 
 ```
-> number of matches won played at "home" and "away"
+> number of matches won played at "home" and "away" (separate in home and away?)
 
-### box 2
+### Matches Lost
 ```{r fig.width=1, fig.height=1}
 
-gauge(8, min = 0, max = 18, gaugeSectors(
-  success = c(11,18), warning = c(5, 10), danger = c(0, 4)))
+renderGauge({
+  matches_played = filter(data_per_club, league == input$team_league, year == input$team_year, team == input$team_team)$matches
+  matches_lost = filter(data_per_club, league == input$team_league, year == input$team_year, team == input$team_team)$loses
+  
+  gauge(matches_lost, min = 0, max = matches_played, gaugeSectors(
+  success = c(2*matches_played/3, matches_played), warning = c(matches_played/3, 2*matches_played/3), danger = c(0, matches_played/3), colors = c("lightcoral", "palegoldenrod", "mediumseagreen")))
+})
 
 ```
-> the most important summary statistics for the season
+> number of matches lost played at "home" and "away" (separate in home and away?)
+> CAMBIAR, DIVIDIR wins looses in home and away!!!
 
-### box 3
+### je ne sais pas
 ```{r fig.width=1, fig.height=1}
 
 gauge(18, min = 0, max = 38, gaugeSectors(
@@ -180,7 +246,7 @@ gauge(18, min = 0, max = 38, gaugeSectors(
 ```
 > the most important summary statistics for the season
 
-### box 3
+### io non posso idea
 ```{r fig.width=1, fig.height=1}
 
 gauge(18, min = 0, max = 38, gaugeSectors(
@@ -193,19 +259,27 @@ gauge(18, min = 0, max = 38, gaugeSectors(
 row
 ----------------------------------
 
-### chart 4 
+### Head to Head 
 
 ```{r}
 
-renderPlot({data_per_club |> group_by(year, league) |>
-                  summarise(avg_exp_goal = mean(xG)) |>
-                  ggplot() + geom_bar(aes(x = league,
-                                          y = avg_exp_goal, 
-                                          fill = league), stat = "Identity") +                                                  facet_wrap(~year, nrow = 3)})
+renderTable({data_per_game |> filter(team == input$team_team, 
+                                     opponent == input$team_opp) |> 
+    mutate(date = format(date, "%Y-%m-%d")) |> 
+    mutate("home_team" = ifelse(stadium == "h", team, opponent)) |> 
+    mutate("away_team" = ifelse(stadium == "a", team, opponent)) |> 
+    mutate("home_goals" = ifelse(stadium == "h", scored, conceded)) |> 
+    mutate("away_goals" = ifelse(stadium == "a", scored, conceded)) |> 
+    select(date, home_team, home_goals, away_goals, away_team)}, digits = 0)
+
+#renderPlot({data_per_club |> group_by(year, league) |>
+#                  summarise(avg_exp_goal = mean(exp_goal)) |>
+#                  ggplot() + geom_bar(aes(x = league,
+#                                          y = avg_exp_goal, 
+#                                          fill = league), stat = "Identity") +                                                  facet_wrap(~year, nrow = 3)})
 
 ```
-> the most important summary statistics for the season 
-> the most important summary statistics for the season
+> Falta corregir el h2h hay resultados que se voltean + descripción pequeña aca 
 
 ### chart 5 
 
