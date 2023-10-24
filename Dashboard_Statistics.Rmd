@@ -102,7 +102,7 @@ Options {.sidebar}
 ```{r}
 
 
-selectInput("season", "Choose a competition:",
+selectInput("team_league", "Choose a competition:",
                 c("Bundesliga" = "Bundesliga",
                   "Premier League" = "EPL",
                   "Serie A" = "Serie_A",
@@ -130,36 +130,10 @@ teams = reactive({return(sort(filter(data_per_club, league == input$team_league,
 
 teams_opp = reactive({return(sort(filter(data_per_club, league == input$team_league, year == input$team_year, team != input$team_team)$team))})
 
-#renderTable(filter(data_per_club, league == input$team_league, year == input$team_year)$team)
-
-#reactiveValuesToList(teams)
-##teams_final = c()
-#reactive({
-#  teams_final = c()
-#  for (i in teams()){
-#    teams_final = cbind(teams_final, i)
-#  }
-#  selectInput("team_team", "Choose a team:", teams_final)
-#})
-
-#print(str(teams_final))
-
-
 selectInput("team_team", "Choose a team:", c(""))
 
 selectInput("team_opp", "Choose a team for Head to Head comparison:", c(""))
 
-#actionButton("prueba", "Probando")
-
-#equipo = reactive(input$team_team)
-#anio = reactive(input$team_year)
-#liga = reactive(input$team_league)
-
-#reactive(print(input$team_team))
-
-#observeEvent(input$prueba, renderPrint(anio(), liga()))
-
-#,warning = FALSE,results='hide'
 reactive(updateSelectInput(inputId = "team_team", choices = teams()))
 
 reactive(updateSelectInput(inputId = "team_opp", choices = teams_opp()))
