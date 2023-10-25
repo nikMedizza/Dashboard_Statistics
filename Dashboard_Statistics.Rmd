@@ -23,6 +23,7 @@ library(tidyverse)
 library(ggrepel)
 library(DT)
 library(shiny)
+library(ggplot2)
 #knitr::opts_chunk$set(fig.width = 5)
 
 
@@ -85,6 +86,26 @@ data_per_game = data_per_game |>
                                    "ppda_coef" = "oppda_coef", 
                                    "oppda_coef" = "ppda_coef"))
 
+
+## Df created for plot 5 and 6 (Joao)
+wins_home <- data_per_game |>
+  filter(result =="w", stadium == "h") |>
+  group_by(year, league, team) |>
+  summarize(home_wins = n())
+
+wins_away <- data_per_game |>
+  filter(result =="w", stadium != "h") |>
+  group_by(year, league, team) |>
+  summarize(away_wins = n())
+
+winjoin <- full_join(wins_home, wins_away, by = c("year", "league", "team"))
+
+data_selected <- data_per_club |>
+  select(year, league, team, position)
+
+wins <- winjoin |>
+  left_join(data_selected, by = c("year", "league", "team")) |>
+  filter(position < 5)
 
 ```
 
@@ -364,7 +385,7 @@ Options {.sidebar}
 ------------------------
 
 ```{r}
-selectInput("variable", "Choose a league:",
+selectInput("league_league", "Choose a league:",
                 c("Bundesliga" = "Bundesliga",
                   "Premier League" = "EPL",
                   "Serie A" = "Serie_A",
@@ -374,33 +395,40 @@ selectInput("variable", "Choose a league:",
 
 
 ```{r}
-selectInput("nation", "Choose a league:",
-                c("Bundesliga" = "Bundesliga",
-                  "Premier League" = "EPL",
-                  "Serie A" = "Serie_A",
-                  "La Liga" = "La_liga", 
-                  "Ligue 1" = "Ligue_1"))
-
-
+selectInput("league_year", "Choose the season:",
+                c("2014/2015" = 2014,
+                  "2015/2016" = 2015,
+                  "2016/2017" = 2016,
+                  "2017/2018" = 2017, 
+                  "2018/2019" = 2018,
+                  "2019/2020" = 2019))
 ```
 
-```{r}
-selectInput("league", "Choose a league:",
-                c("Bundesliga" = "Bundesliga",
-                  "Premier League" = "EPL",
-                  "Serie A" = "Serie_A",
-                  "La Liga" = "La_liga", 
-                  "Ligue 1" = "Ligue_1"))
 
-```
 
 
 column
 ----------------------------
 
 
-### summary chart
+### Difference of goals per ranking position
 ```{r}
+renderPlot({
+  data_per_club |> 
+    filter(league == input$league_league, year == input$league_year) |>
+  ggplot() +
+  geom_line(aes(x=position, y=goal_diff), size = 1.5, color = "red", linetype = "solid") +
+  geom_line(aes(x=position, y=no_pen_exp_goal_diff), size = 1.5, color = "darkgreen", linetype = "solid") +
+  scale_y_continuous(breaks = seq(-70,100, by = 5)) +
+  scale_x_continuous(breaks = seq(1,20,  by = 1)) +
+  theme_linedraw() +
+  labs(title = "Difference of goals per ranking position",
+       x = "Ranking",
+       y = "Difference of goals",
+       caption = "Green curve represents expected difference of goals") + 
+  theme(plot.title = element_text(hjust = 0.5))
+})
+
 
 
 
@@ -410,11 +438,27 @@ column
 
 
 
-### table
+### Link between goals difference and ranking
 
 
 ```{r}
+custom_colors <- c("2014"= "darkgreen","2015"="darkseagreen","2016"="khaki","2017"="aquamarine","2018"="hotpink","2019"="deepskyblue")
 
+renderPlot({
+  data_per_club |>
+    filter(league == input$league_league) |>
+  ggplot(aes(x=position, y = goal_diff, color = as.factor(year), group = as.factor(year))) +
+  geom_smooth(se = FALSE) +
+  scale_color_manual(values = custom_colors) +
+  scale_x_continuous(breaks = seq(1,20, by = 1)) +
+  scale_y_continuous(breaks = seq(-60,80, by = 10)) +
+  theme_linedraw() +
+  labs(title = "Relation between goals difference per ranking",
+       x = "Ranking",
+       y = "Goals difference",
+       color = "Years") + 
+  theme(plot.title = element_text(hjust = 0.5))
+})
 
 ```
 
@@ -422,7 +466,93 @@ column
 column  {.tabset}
 -------------------------------
 
-### chart 1
+### Plot of average goals scored per game and total wins
+
+```{r}
+
+renderPlot({
+  
+  data_per_club |>
+              filter(league == input$league_league, year == input$league_year) |>
+              mutate(Average_goalscored_per_game = scored/matches,
+                     Average_goalsconceded_per_game = conceded/matches) |>
+  ggplot(aes(x=wins,y=Average_goalscored_per_game)) +
+  geom_point(aes(color = team)) +
+  geom_point(size = 2.5, shape = 1) +
+  geom_smooth(se=FALSE) +
+  scale_x_continuous(breaks = seq(0,38, by = 1)) +
+  scale_y_continuous(breaks = seq(0.50,3, by = 0.25 )) +
+  theme_linedraw() +
+  labs(title = "Average goals scored per game",
+       x = "Games won",
+       y = "Average goals scored per game",
+       color = "Teams",
+       caption = "The game isn't necessarily won") +
+  ggrepel::geom_label_repel(aes(label=position), max.overlaps = Inf) + 
+  theme(plot.title = element_text(hjust = 0.5))
+  
+})
+
+
+
+```
+
+
+### Plot of average goals conceded and total losses
+
+```{r}
+
+renderPlot({
+  
+  data_per_club |>
+              filter(league == input$league_league, year == input$league_year) |>
+              mutate(Average_goalscored_per_game = scored/matches,
+                     Average_goalsconceded_per_game = conceded/matches) |>
+  ggplot(aes(x=loses, y=Average_goalsconceded_per_game)) +
+  geom_point(aes(color = team)) +
+  geom_point(size = 2.5, shape = 1) +
+  geom_smooth(se=FALSE) +
+  scale_x_reverse(breaks = seq(0,30,1)) +
+  scale_y_continuous(breaks = seq(0.50,3, by = 0.25 )) +
+  theme_linedraw() +
+  labs(title = "Average goals conceded per game",
+       x = "Games lost",
+       y = "Average goals conceded per game",
+       color = "Teams",
+       caption = "The game isn't necessarily lost") +
+  ggrepel::geom_label_repel(aes(label=position), max.overlaps = Inf) + 
+  theme(plot.title = element_text(hjust = 0.5))
+
+})
+```
+
+### Link between wins at home and ranking
+
+```{r}
+renderPlot({
+  wins |>
+        filter(league == input$league_league) |>
+  ggplot(aes(x=position, y=home_wins, fill = team)) +
+  geom_bar(stat = "identity", alpha = 0.75) +
+  scale_y_continuous(breaks = seq(0,18, by=3)) +
+  theme_light() +
+  labs(title = "Relation between nb of wins at home and the ranking",
+       x = "Ranking in the league",
+       y = "Total wins at home",
+       fill = "The top 4") +
+  coord_flip() +
+  facet_wrap(~year)
+
+})
+```
+
+### Link between wins away and ranking
+
+```{r}
+
+```
+
+### Average yellow cards received per ranking
 
 ```{r}
 
@@ -430,11 +560,6 @@ column  {.tabset}
 ```
 
 
-### chart 2
-
-```{r}
-
-```
 
 Comparison across leagues {data-orientation=rows data-icon="fa-globe"}
 =================================
