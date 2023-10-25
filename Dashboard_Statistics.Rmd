@@ -497,8 +497,7 @@ row
                                  scale_colour_manual("Exp goal per match", 
                                                      breaks = c("Exp Tot Goals", 
                                                                 "Tot goals scored"), 
-                                                     values = c("lightblue", 
-                                                                "black")) +
+                                                     values = c("black","lightblue")) +
                                  facet_wrap(~ year) +
                                  theme_bw()
    
