@@ -385,10 +385,10 @@ selectInput("year_season", "Choose the season:",
 
 ```{r}
 # Define the checkbox group input
+
 checkboxGroupInput("select_options", "Select the leagues:", 
                    choices = c("Bundesliga", "EPL", "Serie_A","La_liga" ,"Ligue_1"),
                    selected = c("Bundesliga", "EPL", "Serie_A","La_liga" ,"Ligue_1"))
-
 
 
 ```
@@ -397,7 +397,7 @@ checkboxGroupInput("select_options", "Select the leagues:",
 row  {data-orentation=columns data-height=250}
 ---------------------------------
 
-### tab1 
+### Winning teams for each league
 
 ```{r, fig.width=3}
 
@@ -411,19 +411,35 @@ renderTable({
 row 
 ----------------------------------
 
-### chart 0
+### Distribution of gol scored and total expected goal for each league
 
 ```{r}
 
-    renderPlot({data_per_club |> filter(league %in% input$select_options) |> ggplot() + geom_boxplot(aes(league, scored)) +
-                 geom_boxplot(aes(league, exp_goal), color = "lightblue") + facet_wrap(~ year) })
+ renderPlot({
+      data_per_club |> filter(league %in% input$select_options) |> 
+                                 ggplot() + 
+                                 geom_boxplot(aes(league, exp_goal, color = "Exp Tot Goals" )) +
+                                 geom_boxplot(aes(league, scored, color = "Tot goals scored")) +
+                                 labs(x = "League",
+                                      y = "Distribution of total goals scored") +
+                                 scale_colour_manual("Exp goal per match", 
+                                                     breaks = c("Exp Tot Goals", 
+                                                                "Tot goals scored"), 
+                                                     values = c("lightblue", 
+                                                                "black")) +
+                                 facet_wrap(~ year) +
+                                 theme_bw()
+   
+   
+      })
+
 
 ```
 
 row
 -------------------------------
 
-### chart 1 
+### Difference goal scored for the first 10th ranked teams within each league
 
 ```{r, fig.height=3}
 
@@ -435,133 +451,207 @@ data_per_game1 <- data_per_game |>
 
 
 
-renderPlot({data_per_club |> filter(year == input$year_season, position <= 10, league %in% input$select_options) |> 
-                 ggplot() + geom_line(aes(position, goal_diff, color = league))})                                  
-# as an alternative focus on a particolar year
-
-#teams_per_league <- data_per_club|> filter(year == 2018, league == "Bundesliga") |> count()
-
-
+renderPlot({
+  
+  data_per_club |> filter(year == input$year_season, 
+                          position <= 10, 
+                          league %in% input$select_options) |> 
+                     ggplot() + 
+                     geom_line(aes(position, goal_diff, color = league)) + 
+                     labs(x = "Teams ranked by final position",
+                          y = "Difference between goals scored and conceded ",
+                          color = "Top 5 leagues") +
+                     geom_point(aes(position, goal_diff, color = league)) +
+                     scale_x_continuous(breaks = seq(1,10, by = 2)) +
+                     theme_bw()
+      
+  })                                  
 
 
 ```
 
 
-### chart 2 
+### Average teams' pressure within each league
 
 
 ```{r}
 
-renderPlot({data_per_club |> filter(year == input$year_season, league %in% input$select_options) |> 
+renderPlot({
+  data_per_club |> filter(year == input$year_season, 
+                          league %in% input$select_options) |> 
                  group_by(league) |> summarise(avg_opp_pressure = mean(ppda_coef)) |>
-                 ggplot() + geom_bar(aes(league, avg_opp_pressure), stat = "Identity")
+                 ggplot() + 
+                 geom_bar(aes(league, avg_opp_pressure), stat = "Identity") + 
+                 labs(x = "Top five football leagues",
+                      y = "Average teams' pressure per league ") +
+                 theme_bw()
+  
 })
 ```
 
 
-row {.tabset}
+row {.tabset .tabset-fade}
 ---------------------------------
 
-### chart 3 
+### Average expected goal and goal scored per game played in the Premier League
 
 ```{r}
 
 
 
-renderPlot({data_per_game1 |> filter(year == input$year_season, league %in% input$select_options ) |> group_by(match_day) |> 
-                  summarise(avg_goal_per_day = sum(scored)/10, avg_exp_goal = sum(exp_goal)/10) |>
-                    ggplot() + geom_bar(aes(match_day, avg_goal_per_day),  fill="white", stat = "Identity") +    
-    theme_dark() + geom_line(aes(match_day, avg_exp_goal), 
-                                       color = "red", 
+renderPlot({
+  
+  data_per_game1 |> filter(year == input$year_season, 
+                           league == "EPL") |> group_by(match_day) |> 
+                  summarise(avg_goal_per_day = sum(scored)/10, 
+                            avg_exp_goal = sum(exp_goal)/10) |>
+                    ggplot() + 
+                  geom_bar(aes(match_day, avg_goal_per_day), fill="grey", stat = "Identity") +    
+                  geom_line(aes(match_day, avg_exp_goal, color = "Exp Goals per match"), 
                                        linewidth = 0.5, 
-                                       linetype = "dashed")
+                                       linetype = "dashed", show.legend = TRUE) + 
+                  labs(x = "Match day",
+                       y = "Average goal scored per match day") + 
+                  scale_colour_manual("Exp goal per match", breaks = "Exp Goals per match", values = "red") +
+                  scale_x_continuous(breaks = seq(1, 38, by = 2)) +
+                  theme_bw()
+  
   
 })
 
 ```
+> Here we can see for each match-day the difference between expected goal and gol scored for the Premier League, 
 
 
-
-### average goal scored per match played
+### Average goal scored per match played in the top 5 leagues
 
 ```{r}
 
-renderPlot({data_per_game1 |> filter(year == input$year_season, league %in% input$select_options) |> group_by(league, match_day) |> 
-    summarise(avg_goal_per_day = sum(scored)/10) |>
-               ggplot() + geom_line(aes(match_day, avg_goal_per_day, color = league), linetype = 2) +
-               geom_smooth(aes(match_day, avg_goal_per_day, color = league), se = FALSE)
+renderPlot({
+  
+  data_per_game1 |> filter(year == input$year_season, 
+                           league %in% input$select_options) |> group_by(league, match_day) |> 
+                    summarise(avg_goal_per_day = sum(scored)/10) |>
+               ggplot() + 
+               geom_line(aes(match_day, 
+                             avg_goal_per_day, 
+                             color = league), 
+                             linetype = 2) +
+               geom_smooth(aes(match_day, 
+                               avg_goal_per_day, 
+                               color = league), se = FALSE) +
+               labs(x = "Match Day",
+                    y = "Average goal scored per match day") +
+               theme_bw()
 })
 
 ```
+> Approaching the end of the season the number of goals scored in a match on avearge increase exponentially
 
 
-
-### average expected goal per game played
+### Average expected goal per game played across the years 
 
 ```{r}
 
 # try to change the intensity of of the lines so that it's easier to get the trend per league
 # fix also the denominator in the division for the exact number of matches played
 
-renderPlot({data_per_game1 |> filter(league %in% input$select_options) |> group_by(year, league, match_day) |>
-                                          summarise(avg_exp_goal = sum(exp_goal)/10) |> 
-                                          ggplot() + geom_line(aes(match_day, 
-                                                                   avg_exp_goal,
-                                                                   color = league), linetype = 6, linewidth = 0.3) +
-                                          geom_smooth(aes(match_day, avg_exp_goal, color = league), se = FALSE) +
-                                          facet_wrap(~ year)})
+renderPlot({
+  
+  data_per_game1 |> filter(league %in% input$select_options) |> 
+                    group_by(year, league, match_day) |>
+                    summarise(avg_exp_goal = sum(exp_goal)/10) |> 
+                    ggplot() + geom_line(aes(match_day, 
+                                             avg_exp_goal,
+                                             color = league), 
+                                         linetype = 6, 
+                                         linewidth = 0.3) +
+                    geom_smooth(aes(match_day, 
+                                    avg_exp_goal, 
+                                    color = league), 
+                                se = FALSE) +
+                    labs(x = "Match day",
+                         y = "Average expected goal scored per match day") +
+                    theme_bw() +
+                    facet_wrap(~ year)
+  })
 
               
 ```
 
+> Along the years the expected goal per match-played increased torward the end of the season, supporting the idea that teams create more goal occasions.
 
-### chart 7
+###  Average passeges completed per goal scored during a match among the top 5 leagues
 
 ```{r}
 
-renderPlot({data_per_club |> filter(year == input$year_season, league %in% input$select_options) |> group_by(league) |>
-                 ggplot() + geom_point(aes(scored, deep)) +
-                 geom_smooth(aes(scored, deep)) + facet_wrap(~league) })
+renderPlot({
+   
+  data_per_club |> filter(year == input$year_season, 
+                          league %in% input$select_options) |> group_by(league) |>
+                   ggplot() + 
+                   geom_point(aes(scored/38, deep/38)) +
+                   geom_smooth(aes(scored/38, deep/38)) + 
+                   labs(x = "Average goal scored per match played by the team",
+                        y = "Average passages completed per match played by the team ") +
+                   theme_bw() +
+                   facet_wrap(~league) 
+  
+  })
 
 
 ```
-
+> There is an increasing trend between passages completed before scoring a goal and number of goals, meaming that scoring more goals requires play more with the ball.
 
 
 column
 -------------------------
 
-### plot 7
+### Expected goals scored and goals scored per teams winning the competition 
 
 ```{r}
 
  renderPlot({
           
-     data_per_club |> filter(position == 1, year == input$year_season, league %in% input$select_options) |> 
-       ggplot( aes(x = team)) + 
-       geom_bar(aes(y = exp_goal), position = "dodge", stat = "Identity") +
-       geom_point(aes(y = scored), shape = 17, size = 4, color = "red")
+     data_per_club |> filter(position == 1, 
+                             year == input$year_season, 
+                             league %in% input$select_options) |> 
+                      ggplot( aes(x = team)) + 
+                      geom_bar(aes(y = exp_goal), position = "dodge", stat = "Identity") +
+                      geom_point(aes(y = scored, color = "Goals scored"), shape = 17, size = 3) +
+                      labs(x = "Winning teams for each league ",
+                           y = "Expected total goal during the season ") +
+                      scale_colour_manual("Total goals scored", breaks = "Goals scored", values = "red") +
+                      theme_bw()
      
    })
 
 
 ```
 
+> The winning teams scored more goals than the expected, indicating their ability to convert in goal shots
 
 
-### chart 6
+### Expected total points and effective points earned by the winning teams
 
 ```{r}
 
 renderPlot({
           
-     data_per_club |> filter(position == 1, year == input$year_season, league %in% input$select_options) |> 
-       ggplot( aes(x = team)) + 
-       geom_bar(aes(y = exp_pts), position = "dodge", stat = "Identity") +
-       geom_point(aes(y = pts), shape = 17, size = 4, color = "blue")
-     
+     data_per_club |> filter(position == 1, 
+                             year == input$year_season, 
+                             league %in% input$select_options) |> 
+                      ggplot( aes(x = team)) + 
+                      geom_bar(aes(y = exp_pts), position = "dodge", stat = "Identity") +
+                      geom_point(aes(y = pts, color = "Points"), shape = 17, size = 3) + 
+                      labs(x = "Winning teams for the top 5 leagues",
+                           y = "Expected total points earned during a season ") +
+                      scale_colour_manual("Total points", breaks = "Points", values = "blue") +
+                      theme_bw()
+                     
    })
   
 ```
 
+> Teams that won the league had a higher ability to bring at home the points compared to their expected points, meaning that their efficiency in defense and attack made the difference
 
