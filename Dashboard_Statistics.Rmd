@@ -631,7 +631,7 @@ renderPlot({
   
   data_per_game1 |> filter(league %in% input$select_options) |> 
                     group_by(year, league, match_day) |>
-                    summarise(avg_exp_goal = sum(exp_goal)/10) |> 
+                    summarise(avg_exp_goal = sum(exp_goal)/(n()/2)) |> 
                     ggplot() + geom_line(aes(match_day, 
                                              avg_exp_goal,
                                              color = league), 
@@ -661,8 +661,8 @@ renderPlot({
   data_per_club |> filter(year == input$year_season, 
                           league %in% input$select_options) |> group_by(league) |>
                    ggplot() + 
-                   geom_point(aes(scored/38, deep/38)) +
-                   geom_smooth(aes(scored/38, deep/38)) + 
+                   geom_point(aes(scored/matches, deep/matches)) +
+                   geom_smooth(aes(scored/matches, deep/matches)) + 
                    labs(x = "Average goal scored per match played by the team",
                         y = "Average passages completed per match played by the team ") +
                    theme_bw() +
