@@ -101,7 +101,6 @@ Options {.sidebar}
 
 ```{r}
 
-
 selectInput("team_league", "Choose a competition:",
                 c("Bundesliga" = "Bundesliga",
                   "Premier League" = "EPL",
@@ -109,10 +108,6 @@ selectInput("team_league", "Choose a competition:",
                   "La Liga" = "La_liga", 
                   "Ligue 1" = "Ligue_1" 
                   ))
-
-```
-
-```{r}
 
 selectInput("team_year", "Choose a season:",
                 c("2014-2015" = "2014",
@@ -122,47 +117,37 @@ selectInput("team_year", "Choose a season:",
                   "2018-2019" = "2018", 
                   "2019-2020" = "2019"))
 
-```
+teams = reactive({sort(filter(data_per_club, league == input$team_league, year == input$team_year)$team)})
 
-```{r}
+teams_opp = reactive({sort(filter(data_per_club, league == input$team_league, year == input$team_year, team != input$team_team)$team)})
 
-teams = reactive({return(sort(filter(data_per_club, league == input$team_league, year == input$team_year)$team))})
+renderUI({selectInput("team_team", "Choose a team:", teams())})
 
-teams_opp = reactive({return(sort(filter(data_per_club, league == input$team_league, year == input$team_year, team != input$team_team)$team))})
-
-selectInput("team_team", "Choose a team:", c(""))
-
-selectInput("team_opp", "Choose a team for Head to Head comparison:", c(""))
-
-reactive(updateSelectInput(inputId = "team_team", choices = teams()))
-
-reactive(updateSelectInput(inputId = "team_opp", choices = teams_opp()))
-
-#position = reactive(as.character(filter(data_per_club, league == input$team_league, year == input$team_year, team = input$team_team)$position[1]))
-
-#renderTable(filter(data_per_club, league == input$team_league, year == input$team_year, team = input$team_team)$position[1])
+renderUI({selectInput("team_opp", 
+                      "Choose a team for comparison:", 
+                      teams_opp())})
 
 ```
-
-
 
 
 tabset
 -----------------------------------
 
-### tab1 
+<!-- ### tab1  -->
 
-Here we can see the main statistics for the team (insert team name) and their historic results against team (insert opponents name)
+<!-- Here we can see the main statistics for the team (insert team name) and their historic results against team (insert opponents name) -->
 
-
-row
----------------------------
+<!-- row -->
+<!-- --------------------------- -->
 
 ### Final Position
 ```{r fig.width=1, fig.height=0.5}
 
 renderValueBox({
-  position = filter(data_per_club, league == input$team_league, year == input$team_year, team == input$team_team)$position[1]
+  position = filter(data_per_club, 
+                    league == input$team_league, 
+                    year == input$team_year, 
+                    team == input$team_team)$position[1]
   
   box_icon = ""
   
@@ -181,53 +166,86 @@ renderValueBox({
 
 ```
 
-### Matches Won
+### Matches Won at Home
 ```{r fig.width=1, fig.height=1}
 
 renderGauge({
-  matches_played = filter(data_per_club, league == input$team_league, year == input$team_year, team == input$team_team)$matches
-  matches_won = filter(data_per_club, league == input$team_league, year == input$team_year, team == input$team_team)$wins
+  matches_played = length(filter(data_per_game, league == input$team_league, year == input$team_year, team == input$team_team, stadium == "h")$wins)
+  matches_won = sum(filter(data_per_game, league == input$team_league, year == input$team_year, team == input$team_team, stadium == "h")$wins)
   
   gauge(matches_won, min = 0, max = matches_played, gaugeSectors(
   success = c(2*matches_played/3, matches_played), warning = c(matches_played/3, 2*matches_played/3), danger = c(0, matches_played/3), colors = c("mediumseagreen", "palegoldenrod", "lightcoral")))
 })
 
 ```
-> number of matches won played at "home" and "away" (separate in home and away?)
+> Number of wins playing at home
 
-### Matches Lost
+### Matches Won Away
 ```{r fig.width=1, fig.height=1}
 
 renderGauge({
-  matches_played = filter(data_per_club, league == input$team_league, year == input$team_year, team == input$team_team)$matches
-  matches_lost = filter(data_per_club, league == input$team_league, year == input$team_year, team == input$team_team)$loses
+  matches_played = length(filter(data_per_game, league == input$team_league, year == input$team_year, team == input$team_team, stadium == "a")$wins)
+  matches_won = sum(filter(data_per_game, league == input$team_league, year == input$team_year, team == input$team_team, stadium == "a")$wins)
+  
+  gauge(matches_won, min = 0, max = matches_played, gaugeSectors(
+  success = c(2*matches_played/3, matches_played), warning = c(matches_played/3, 2*matches_played/3), danger = c(0, matches_played/3), colors = c("mediumseagreen", "palegoldenrod", "lightcoral")))
+})
+
+```
+> Number of wins playing away
+
+### Matches Lost at Home
+```{r fig.width=1, fig.height=1}
+
+renderGauge({
+  matches_played = length(filter(data_per_game, league == input$team_league, year == input$team_year, team == input$team_team, stadium == "h")$loses)
+  matches_lost = sum(filter(data_per_game, league == input$team_league, year == input$team_year, team == input$team_team, stadium == "h")$loses)
   
   gauge(matches_lost, min = 0, max = matches_played, gaugeSectors(
   success = c(2*matches_played/3, matches_played), warning = c(matches_played/3, 2*matches_played/3), danger = c(0, matches_played/3), colors = c("lightcoral", "palegoldenrod", "mediumseagreen")))
 })
 
 ```
-> number of matches lost played at "home" and "away" (separate in home and away?)
-> CAMBIAR, DIVIDIR wins looses in home and away!!!
+> Number of loses playing at home
 
-### je ne sais pas
+### Matches Lost Away
 ```{r fig.width=1, fig.height=1}
 
-gauge(18, min = 0, max = 38, gaugeSectors(
-  success = c(80, 100), warning = c(40, 79), danger = c(0, 39)))
+renderGauge({
+  matches_played = length(filter(data_per_game, league == input$team_league, year == input$team_year, team == input$team_team, stadium == "a")$loses)
+  matches_lost = sum(filter(data_per_game, league == input$team_league, year == input$team_year, team == input$team_team, stadium == "a")$loses)
+  
+  gauge(matches_lost, min = 0, max = matches_played, gaugeSectors(
+  success = c(2*matches_played/3, matches_played), warning = c(matches_played/3, 2*matches_played/3), danger = c(0, matches_played/3), colors = c("lightcoral", "palegoldenrod", "mediumseagreen")))
+})
 
 ```
-> the most important summary statistics for the season
+> Number of loses playing away
 
-### io non posso idea
-```{r fig.width=1, fig.height=1}
+row
+--------------------------
 
-gauge(18, min = 0, max = 38, gaugeSectors(
-  success = c(80, 100), warning = c(40, 79), danger = c(0, 39)))
+### Season Results
+
+```{r}
+
+renderDataTable({data_per_game |> filter(league == input$team_league, 
+                                     team == input$team_team, 
+                                     year == input$team_year) |> 
+    mutate(date = format(date, "%Y-%m-%d")) |> 
+    mutate("home_team" = ifelse(stadium == "h", team, opponent)) |> 
+    mutate("away_team" = ifelse(stadium == "a", team, opponent)) |> 
+    mutate("home_goals" = ifelse(stadium == "h", scored, conceded)) |> 
+    mutate("away_goals" = ifelse(stadium == "a", scored, conceded)) |> 
+    select(date, home_team, home_goals, away_goals, away_team) |> 
+    rename("Date" = "date", 
+           "Home Team" = "home_team", 
+           "Home Goals" = "home_goals", 
+           "Away Goals" = "away_goals", 
+           "Away Team" = "away_team")})
 
 ```
-
-> the most important summary statistics for the season
+> Full team's results for the season
 
 row
 ----------------------------------
@@ -236,52 +254,106 @@ row
 
 ```{r}
 
-renderTable({data_per_game |> filter(team == input$team_team, 
+renderTable({data_per_game |> filter(league == input$team_league, 
+                                     team == input$team_team, 
                                      opponent == input$team_opp) |> 
     mutate(date = format(date, "%Y-%m-%d")) |> 
     mutate("home_team" = ifelse(stadium == "h", team, opponent)) |> 
     mutate("away_team" = ifelse(stadium == "a", team, opponent)) |> 
     mutate("home_goals" = ifelse(stadium == "h", scored, conceded)) |> 
     mutate("away_goals" = ifelse(stadium == "a", scored, conceded)) |> 
-    select(date, home_team, home_goals, away_goals, away_team)}, digits = 0)
-
-#renderPlot({data_per_club |> group_by(year, league) |>
-#                  summarise(avg_exp_goal = mean(exp_goal)) |>
-#                  ggplot() + geom_bar(aes(x = league,
-#                                          y = avg_exp_goal, 
-#                                          fill = league), stat = "Identity") +                                                  facet_wrap(~year, nrow = 3)})
+    select(date, home_team, home_goals, away_goals, away_team) |> 
+    rename("Date" = "date", 
+           "Home Team" = "home_team", 
+           "Home Goals" = "home_goals", 
+           "Away Goals" = "away_goals", 
+           "Away Team" = "away_team")}, digits = 0, align = "c")
+  
 
 ```
-> Falta corregir el h2h hay resultados que se voltean + descripción pequeña aca 
+> Historic results between the two teams in the competition
 
-### chart 5 
+### Cummulative points comparison per match day
 
 ```{r}
 
-renderPlot({data_per_club |> group_by(year, league) |>
-                  summarise(avg_exp_goal = mean(xG)) |>
-                  ggplot() + geom_bar(aes(x = league,
-                                          y = avg_exp_goal, 
-                                          fill = league), stat = "Identity") +                                                  facet_wrap(~year, nrow = 3)})
+renderPlot({data_per_game |> 
+    filter((team == input$team_team | team == input$team_opp) & 
+             year == input$team_year) |> 
+    group_by(team) |> 
+    mutate("match" = c(1:n()), pts = as.numeric(as.character(pts))) |> 
+    ungroup() |> 
+    group_by(team, match) |> 
+    summarize(pts = sum(pts)) |> 
+    mutate(pts_cum = cumsum(pts)) |> 
+    ggplot(mapping = aes(match, pts_cum, color = team)) + 
+    geom_line() + 
+    geom_point() + 
+    labs(x = "Match Day", y = "Cummulative Points") + 
+    theme_bw()})
 
 ```
+> Comparison of performance of both teams throughout the season
 
-row {.tabset}
+row {.tabset .tabset-fade}
 --------------------------
 
-### chart 4 
+### Expected Goals and Actual Goals Scored throughout the Season
 
 ```{r}
 
-renderPlot({data_per_club |> group_by(year, league) |>
-                  summarise(avg_exp_goal = mean(xG)) |>
-                  ggplot() + geom_bar(aes(x = league,
-                                          y = avg_exp_goal, 
-                                          fill = league), stat = "Identity") +                                                  facet_wrap(~year, nrow = 3)})
+renderPlot({data_per_game |> 
+    filter(league == input$team_league, 
+           team == input$team_team, 
+           year == input$team_year) |> 
+    group_by(team) |> 
+    mutate("match" = c(1:n()), pts = as.numeric(as.character(pts))) |> 
+    ungroup() |> 
+    ggplot() + 
+    geom_line(mapping = aes(match, exp_goal, color = "Expected Goals"), 
+              show.legend = TRUE) + 
+    geom_point(mapping = aes(match, exp_goal, color = "Expected Goals"), 
+              show.legend = TRUE) + 
+    geom_line(mapping = aes(match, scored, color = "Goals Scored"), 
+              show.legend = TRUE) + 
+    geom_point(mapping = aes(match, scored, color = "Goals Scored"), 
+              show.legend = TRUE) + 
+    scale_color_manual("", breaks = c("Expected Goals", "Goals Scored"), 
+                       values = c("red", "blue")) + 
+    labs(x = "Match Day", y = "Goals / Expected Goals") + 
+    theme_bw()})
 
 ```
 
+### Expected Goals Against and Actual Goals Conceded throughout the Season
 
+```{r}
+
+renderPlot({data_per_game |> 
+    filter(league == input$team_league, 
+           team == input$team_team, 
+           year == input$team_year) |> 
+    group_by(team) |> 
+    mutate("match" = c(1:n()), pts = as.numeric(as.character(pts))) |> 
+    ungroup() |> 
+    ggplot() + 
+    geom_line(mapping = aes(match, exp_goal_against, 
+                            color = "Expected Goals Against"), 
+              show.legend = TRUE) + 
+    geom_point(mapping = aes(match, exp_goal_against, 
+                            color = "Expected Goals Against"), 
+              show.legend = TRUE) + 
+    geom_line(mapping = aes(match, conceded, color = "Goals Conceded"), 
+              show.legend = TRUE) + 
+    geom_point(mapping = aes(match, conceded, color = "Goals Conceded"), 
+              show.legend = TRUE) + 
+    scale_color_manual("", breaks = c("Expected Goals Against", 
+                                                    "Goals Conceded"), 
+                       values = c("red", "blue")) + 
+    labs(x = "Match Day", y = "Goals / Expected Goals") + 
+    theme_bw()})
+
+```
 
 
 
