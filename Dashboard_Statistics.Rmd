@@ -30,6 +30,7 @@ library(ggplot2)
 #read the data
 data1 <- read_csv(file = "data/understat_per_game.csv")
 data2 <- read_csv(file = "data/understat.com.csv")
+#data3 <- read.csv(file = "data/matches.csv")
 
 colnames_1 = c("league", "year", "stadium", "exp_goal", "exp_goal_against", 
                "no_pen_exp_goal", "no_pen_exp_goal_against", "deep", 
@@ -107,6 +108,141 @@ wins <- winjoin |>
   left_join(data_selected, by = c("year", "league", "team")) |>
   filter(position < 5)
 
+# ## Df cleaning and created for plot 7 (Joao)
+# games_data_filtred <- data3|> 
+#   select(-home_starting_1_num:-away_starting_14)|>
+#   select(-home_starting_15_num:-home_bench_15_minute)|>
+#   select(-attendance:-league)|>
+#   mutate("home_yellowCards"=as.numeric(home_yellowCards),
+#          "away_yellowCards"= as.numeric(away_yellowCards),
+#          "League" = as.factor(League))|>
+#   filter(League != "Dutch Eredivisie")|>
+#   filter(year < 2020 & year > 2013) |>
+#   mutate(home = recode(home,
+#                        "AFC Bournemouth" = "Bournemouth",
+#                        "Brighton & Hove Albion" = "Brighton",
+#                        "Cardiff City" = "Cardiff",
+#                        "Huddersfield Town" = "Huddersfield",
+#                        "Hull City" = "Hull",
+#                        "Leicester City" = "Leicester",
+#                        "Norwich City" = "Norwich",
+#                        "Stoke City" = "Stoke",
+#                        "Swansea City" = "Swansea",
+#                        "Tottenham Hotspur" = "Tottenham",
+#                        "West Ham United" = "West Ham",
+#                        "FC Augsburg" = "Augsburg",
+#                        "Borussia Monchengladbach" = "Borussia M.Gladbach",
+#                        "SV Darmstadt 98" = "Darmstadt",
+#                        "Fortuna Düsseldorf" = "Fortuna Duesseldorf",
+#                        "SC Freiburg" = "Freiburg",
+#                        "Hamburg SV" = "Hamburger SV",
+#                        "TSG Hoffenheim" = "Hoffenheim",
+#                        "FC Ingolstadt 04" = "Ingolstadt",
+#                        "Mainz" = "Mainz 05",
+#                        "Nurnberg" = "Nuernberg",
+#                        "SC Paderborn 07" = "Paderborn",
+#                        "RB Leipzig" = "RasenBallsport Leipzig",
+#                        "1. FC Union Berlin" = "Union Berlin",
+#                        "VfL Wolfsburg" = "Wolfsburg",
+#                        "Almería" = "Almeria",
+#                        "Alavés" = "Alaves",
+#                        "Athletic Bilbao"="Athletic Club",
+#                        "Córdoba" = "Cordoba",
+#                        "Deportivo La Coruña" = "Deportivo La Coruna",
+#                        "Granada CF" = "Granada",
+#                        "Huesca" = "SD Huesca",
+#                        "Leganés"="Leganes",
+#                        "Málaga" = "Malaga",
+#                        "Sevilla FC" = "Sevilla",
+#                        "Sporting Gijón" = "Sporting Gijon",
+#                        "AS Roma" = "Roma",
+#                        "Chievo Verona" = "Chievo",
+#                        "Internazionale" = "Inter",
+#                        "Parma" = "Parma Calcio 1913",
+#                        "US Pescara" = "Pescara",
+#                        "SPAL" = "SPAL 2013",
+#                        "Hellas Verona" = "Verona")) |>
+#   mutate(away = recode(away,
+#                        "AFC Bournemouth" = "Bournemouth",
+#                        "Brighton & Hove Albion" = "Brighton",
+#                        "Cardiff City" = "Cardiff",
+#                        "Huddersfield Town" = "Huddersfield",
+#                        "Hull City" = "Hull",
+#                        "Leicester City" = "Leicester",
+#                        "Norwich City" = "Norwich",
+#                        "Stoke City" = "Stoke",
+#                        "Swansea City" = "Swansea",
+#                        "Tottenham Hotspur" = "Tottenham",
+#                        "West Ham United" = "West Ham",
+#                        "FC Augsburg" = "Augsburg",
+#                        "Borussia Monchengladbach" = "Borussia M.Gladbach",
+#                        "SV Darmstadt 98" = "Darmstadt",
+#                        "Fortuna Düsseldorf" = "Fortuna Duesseldorf",
+#                        "SC Freiburg" = "Freiburg",
+#                        "Hamburg SV" = "Hamburger SV",
+#                        "TSG Hoffenheim" = "Hoffenheim",
+#                        "FC Ingolstadt 04" = "Ingolstadt",
+#                        "Mainz" = "Mainz 05",
+#                        "Nurnberg" = "Nuernberg",
+#                        "SC Paderborn 07" = "Paderborn",
+#                        "RB Leipzig" = "RasenBallsport Leipzig",
+#                        "1. FC Union Berlin" = "Union Berlin",
+#                        "VfL Wolfsburg" = "Wolfsburg",
+#                        "Almería" = "Almeria",
+#                        "Alavés" = "Alaves",
+#                        "Athletic Bilbao"="Athletic Club",
+#                        "Córdoba" = "Cordoba",
+#                        "Deportivo La Coruña" = "Deportivo La Coruna",
+#                        "Granada CF" = "Granada",
+#                        "Huesca" = "SD Huesca",
+#                        "Leganés"="Leganes",
+#                        "Málaga" = "Malaga",
+#                        "Sevilla FC" = "Sevilla",
+#                        "Sporting Gijón" = "Sporting Gijon",
+#                        "AS Roma" = "Roma",
+#                        "Chievo Verona" = "Chievo",
+#                        "Internazionale" = "Inter",
+#                        "Parma" = "Parma Calcio 1913",
+#                        "US Pescara" = "Pescara",
+#                        "SPAL" = "SPAL 2013",
+#                        "Hellas Verona" = "Verona")) 
+# 
+# games_data_filtred <-rename(games_data_filtred, "league" = "League")
+# 
+# 
+# #Remove the 98th row because it contains NA values (ManCity in 2014)
+# row_to_remove <- which(games_data_filtred$id == "395672") 
+# games_data <- games_data_filtred[-row_to_remove, ]
+# 
+# cards_home <- games_data |>
+#   group_by(year, league, home) |>
+#   summarize(Home_Total_yellowCards = sum(home_yellowCards)) |> 
+#   rename("team" = home)
+# 
+# cards_away <- games_data |>
+#   group_by(year,league, away) |>
+#   summarize(Away_Total_yellowCards = sum(away_yellowCards)) |>
+#   rename("team" = away)
+# 
+# #Regroup the 2 df EPL_cards_home & EPL_cards_away 
+# cards <-cards_home |>
+#   inner_join(cards_away, by = c("year","league", "team")) |>
+#   mutate(league = recode(league,
+#                          "English Premier League"="EPL",
+#                          "German Bundesliga"="Bundesliga",
+#                          "Spanish La Liga"="La_liga",
+#                          "French Ligue 1"="Ligue_1",
+#                          "Italian Serie A"="Serie_A"
+#                           ))
+# 
+# #Incorporate the ranking of the team of each year
+# cards_final <- cards |>
+#   inner_join(data_per_club, by = c("year","league", "team")) |>
+#   select(-wins:-goal_diff) |>
+#   mutate(Total_yellowCards = Home_Total_yellowCards + Away_Total_yellowCards,
+#          Total_yellowCards_per_game = Total_yellowCards/matches,
+#          Home_Total_yellowCards_per_game = Home_Total_yellowCards/matches,
+#          Away_Total_yellowCards_per_game = Away_Total_yellowCards/matches)
 ```
 
 
@@ -417,8 +553,10 @@ renderPlot({
   data_per_club |> 
     filter(league == input$league_league, year == input$league_year) |>
   ggplot() +
-  geom_line(aes(x=position, y=goal_diff), size = 1.5, color = "red", linetype = "solid") +
-  geom_line(aes(x=position, y=no_pen_exp_goal_diff), size = 1.5, color = "darkgreen", linetype = "solid") +
+  geom_line(aes(x=position, y=goal_diff, color = "red" )) +
+  geom_point(aes(x=position, y=goal_diff, color = "red")) +
+  geom_line(aes(x=position, y=no_pen_exp_goal_diff, color = "green")) +
+  geom_point(aes(x=position, y=no_pen_exp_goal_diff, color = "green")) +
   scale_y_continuous(breaks = seq(-70,100, by = 5)) +
   scale_x_continuous(breaks = seq(1,20,  by = 1)) +
   theme_linedraw() +
@@ -428,10 +566,6 @@ renderPlot({
        caption = "Green curve represents expected difference of goals") + 
   theme(plot.title = element_text(hjust = 0.5))
 })
-
-
-
-
 ```
 
 
@@ -452,7 +586,7 @@ renderPlot({
   scale_color_manual(values = custom_colors) +
   scale_x_continuous(breaks = seq(1,20, by = 1)) +
   scale_y_continuous(breaks = seq(-60,80, by = 10)) +
-  theme_linedraw() +
+  theme_bw() +
   labs(title = "Relation between goals difference per ranking",
        x = "Ranking",
        y = "Goals difference",
@@ -482,7 +616,7 @@ renderPlot({
   geom_smooth(se=FALSE) +
   scale_x_continuous(breaks = seq(0,38, by = 1)) +
   scale_y_continuous(breaks = seq(0.50,3, by = 0.25 )) +
-  theme_linedraw() +
+  theme_bw() +
   labs(title = "Average goals scored per game",
        x = "Games won",
        y = "Average goals scored per game",
@@ -514,7 +648,7 @@ renderPlot({
   geom_smooth(se=FALSE) +
   scale_x_reverse(breaks = seq(0,30,1)) +
   scale_y_continuous(breaks = seq(0.50,3, by = 0.25 )) +
-  theme_linedraw() +
+  theme_bw() +
   labs(title = "Average goals conceded per game",
        x = "Games lost",
        y = "Average goals conceded per game",
@@ -535,7 +669,7 @@ renderPlot({
   ggplot(aes(x=position, y=home_wins, fill = team)) +
   geom_bar(stat = "identity", alpha = 0.75) +
   scale_y_continuous(breaks = seq(0,18, by=3)) +
-  theme_light() +
+  theme_bw() +
   labs(title = "Relation between nb of wins at home and the ranking",
        x = "Ranking in the league",
        y = "Total wins at home",
@@ -549,12 +683,45 @@ renderPlot({
 ### Link between wins away and ranking
 
 ```{r}
+renderPlot({
+  wins |>
+        filter(league == input$league_league) |>
+ggplot(aes(x=position, y=away_wins, fill=team)) +
+  geom_bar(stat="identity", alpha = 0.75) +
+  scale_y_continuous(breaks = seq(0,18, by=3)) +
+  theme_bw() +
+  labs(title = "Relation between number of wins away and the ranking",
+       x = "Ranking in the league",
+       y = "Total of wins away",
+       fill = "The top 4") + 
+    coord_flip() + 
+    facet_wrap(~ year)
 
+})
 ```
 
-### Average yellow cards received per ranking
+<!-- ### Average yellow cards received per ranking -->
 
 ```{r}
+# renderPlot({
+#   cards_final |>
+#                filter(league == input$league_league, year == input$league_year) |>
+# ggplot() +
+#   geom_col(aes(x=position, y=Total_yellowCards_per_game), size = 1, color = "darkblue", fill = "white") +
+#   geom_line(aes(x=position, y= Total_yellowCards_per_game), size = 1.5, color = "red", linetype = "solid") +
+#   geom_line(aes(x=position, y= Home_Total_yellowCards_per_game), size = 1.5, color = "darkgreen", linetype = "solid") +
+#   geom_line(aes(x=position, y= Away_Total_yellowCards_per_game), size = 1.5, color = "dodgerblue", linetype = "solid") +
+#   scale_y_continuous(breaks = seq(0,3, by = 0.10)) +
+#   scale_x_continuous(breaks = seq(1,20,  by = 1)) +
+#   theme_bw() +
+#   labs(title = "Distribution of yellow cards received in total per game",
+#        x = "Ranking",
+#        y = "Total of yellow cards per game",
+#        caption = "Blue curve represents yellow cards received per game away",
+#        "Green curve represents yellow cards received per game at home") + 
+#   theme(plot.title = element_text(hjust = 0.5))
+# 
+# })
 
 
 ```
