@@ -78,3 +78,9 @@ print(as_tibble(data_per_game))
 
 
 ```
+
+# eda 
+
+# analysis
+
+# conclusion
