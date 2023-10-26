@@ -1,0 +1,80 @@
+---
+title: "Interactive Dashboard"
+format: html
+execute:
+  echo: FALSE
+editor: visual
+html:
+  fig-width: 7
+  fig-height: 5
+---
+
+#### AUTHORS
+
+Nicholas Medizza, Santiago Camargo Carrillo, Joao Aires
+
+# Introduction
+
+The increasing amount of data in the football world create an opportunity to implement statistic analysis in order to try to find new patterns and develop models to predict for example number of goals scored and probability of winning.
+
+Given that our data for this project are not well suited to develope statistic model, we decided to implement a descriptive statistical analysis.
+
+The scope of this project is to develop an interactive dashboard with the aim to help football fans navigate through different plots and tables and discover how teams across different leagues performed from the season 2014/2015 to 2019/2020.
+
+# Data
+
+Our data were downloaded from the website Kaggle and the two main datasets that have been used are data from each given match played by teams in the top 5 european leagues. The second dataset contains the final position for each league across different years with related information. All the columns in the dataset and their respective meaning is reported below.
+
+The standard columns are position, team, amount of matches played, wins, draws, loses, goals scored, goals missed, points.
+
+Additional metrics are:
+
+**npxG** - expected goals without penalties and own goals.
+
+**xGA** - expected goals against.
+
+**xGA_diff** - difference between actual goals missed and expected goals against.
+
+**npxGA** - expected goals against without penalties and own goals.
+
+**npxGD** - difference between "for" and "against" expected goals without penalties and own goals.
+
+**ppda_coef** - passes allowed per defensive action in the opposition half (power of pressure)
+
+**oppda_coef** - opponent passes allowed per defensive action in the opposition half (power of opponent's pressure)
+
+**deep** - passes completed within an estimated 20 yards of goal (crosses excluded)
+
+**deep_allowed** - opponent passes completed within an estimated 20 yards of goal (crosses excluded)
+
+**xpts** - expected points
+
+**xpts_diff** - difference between actual and expected points
+
+Below are reported the first rows for the two dataset.
+
+```{r, message = FALSE}
+library(tidyverse)
+data_per_club <- read_csv("data/understat_per_game.csv", show_col_types = FALSE)
+data_per_game <- read_csv("data/understat.com.csv", show_col_types = FALSE)
+
+# print the dataset with information per game 
+print(as_tibble(data_per_club))
+
+# print the dataset with information per club
+print(as_tibble(data_per_game))
+
+
+```
+
+```{r}
+
+
+
+```
+
+```{r}
+
+
+
+```

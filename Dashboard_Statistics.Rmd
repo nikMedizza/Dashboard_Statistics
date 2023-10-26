@@ -594,7 +594,7 @@ checkboxGroupInput("select_options", "Select the leagues:",
 row  {data-orentation=columns data-height=250}
 ---------------------------------
 
-### Winning teams for each league
+### Winning teams for each league given the choosen year 
 
 ```{r, fig.width=3}
 
@@ -631,6 +631,8 @@ row
 
 
 ```
+
+> Looking at the distribution of total goals scored and total expected goals scored by the teams in the league help us to understand how equilibrate are their level of quality.
 
 row
 -------------------------------
@@ -685,6 +687,7 @@ renderPlot({
 })
 ```
 
+> The average attack pressure in the opponent pitch gives us an estimator of the intensity of play 
 
 row {.tabset .tabset-fade}
 ---------------------------------
