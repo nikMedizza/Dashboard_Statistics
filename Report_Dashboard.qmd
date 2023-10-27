@@ -195,7 +195,12 @@ data_per_game |>
     geom_point() + 
     labs(x = "Match Day", y = "Cummulative Points") + 
     theme_bw()
+
 ```
+
+
+We compute the sum of points acquired for each match day by 2 teams through the season. It enables us to compare their performance, assess the intensity level and depict the turning points.
+
 
 ```{r message=FALSE}
 data_per_game |> 
@@ -219,6 +224,10 @@ data_per_game |>
     labs(x = "Match Day", y = "Goals / Expected Goals") + 
     theme_bw()
 ```
+
+
+We use here 2 variables "Goals scored" and "Expected goals scored" for each match day. The aim is to measure the level of scoring performance through the season.
+
 
 **National league**
 
@@ -382,6 +391,8 @@ data_per_club |>
                                  theme_bw()
 ```
 
+We created 2 kind of box-plots based on total goals scored and total expected goals scored for the five leagues to visualize the distribution of both trough the years. In overall, the total expected goal forecast pretty good since we don't notice huge gaps.
+
 **Comparison of net team performance across the leagues**
 
 ```{r message=FALSE, warning=FALSE}
@@ -404,6 +415,10 @@ data_per_club |> filter(year == 2014,
 
 ```
 
+
+As done in the league part, we have replicated the same plot on net team performance but across leagues. It enables to determine which league has the highest performances. We have restricted the number of teams in order to have a better display.
+
+
 **Comparison of average teams' pressure across the leagues**
 
 ```{r message=FALSE}
@@ -416,7 +431,13 @@ data_per_club |> filter(year == 2014) |>
                  theme_bw()
 ```
 
+
 **Comparison of total goals scored per league and its volatility across leagues**
+
+We compare the average pressure of each league among them by using the "ppda_coef" metric. It allows to determine which league has the highest game intensity.
+
+**Comparison of total goals scored per league across leagues**
+
 
 ```{r message=FALSE}
 data_per_game1 |> filter(year == 2014) |> 
@@ -435,6 +456,8 @@ data_per_game1 |> filter(year == 2014) |>
                theme_bw()
 ```
 
+The dotted lines represent the average of goals scored per match day and the solid lines represent the trend. It shows how much variation of goals scored in average there is among the leagues. There is also the possibility to extend the analysis to all years.
+
 **Comparison between average passes completed and average goals scored per match across leagues**
 
 ```{r message=FALSE}
@@ -448,7 +471,13 @@ data_per_club |> filter(year == 2014) |> group_by(league) |>
                    facet_wrap(~league)
 ```
 
+
 **Analysis of winner league prediction across leagues**
+
+We interact the average goals scored to the average passes completed among each league. We notice that the higher goals a team scores, the more he plays with ball.
+
+**Analysis of winner league points prediction across leagues**
+
 
 ```{r message=FALSE}
 data_per_club |> filter(position == 1, 
@@ -461,6 +490,10 @@ data_per_club |> filter(position == 1,
                       scale_colour_manual("Total points", breaks = "Points", values = "blue") +
                       theme_bw()
 ```
+
+
+We compare how accurate are the "expected points" metric across leagues.
+
 
 # analysis
 
