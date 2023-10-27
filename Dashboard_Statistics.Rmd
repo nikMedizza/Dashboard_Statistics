@@ -21,6 +21,10 @@ runtime: shiny
 
 <!-- In this chunck there is all the code that is required to develop our dashboard and that is not going to be shown on the output. The whole design and structure (layout) of the dashboard was done by the same person. The content inside the dashboard was done by the whole team (one tab each member) (Nicholas) -->
 
+
+
+
+
 ```{r setup, include = FALSE}
 library(flexdashboard) 
 library(tidyverse)
@@ -84,7 +88,7 @@ unique(data_per_game$stadium)
 
 #Summary of the expected goals + checking the extreme values
 summary(data_per_game$exp_goal)
-View(filter(data_per_game, exp_goal > 6))
+#View(filter(data_per_game, exp_goal > 6))
 
 #Summary of the no_pen_exp_goal variable
 summary(data_per_game$no_pen_exp_goal)
@@ -94,7 +98,7 @@ summary(data_per_game$deep)
 
 #Summary of the goals scored + checking the extreme values
 summary(data_per_game$scored)
-View(filter(data_per_game, scored > 8))
+#View(filter(data_per_game, scored > 8))
 #The values were verified to be correct
 
 #Summary of the expected points
@@ -138,14 +142,14 @@ data_per_game |>
   select(league, year, team) |> 
   unique() |> 
   group_by(league, year) |> 
-  summarize(number_of_teams = n()) |> 
-  View()
+  summarize(number_of_teams = n()) #|> 
+  #View()
 
 #Verifying the information is complete (all the matches of all seasons)
 data_per_game |> 
   group_by(league, year) |> 
-  summarize(number_of_matches = n()/2) |> 
-  View()
+  summarize(number_of_matches = n()/2) #|> 
+  #View()
 #We can see that there are 5 matches missing for the 2019/2020 Serie A.
 #These matches were played on 02/08/20, and the dataset is updated until 01/08/20
 #It's decided to keep the dashboard with this missing information, 
@@ -153,50 +157,50 @@ data_per_game |>
 
 #Verifying that no_pen_exp_goal is not greater than exp_goal
 data_per_game |> 
-  filter(no_pen_exp_goal > exp_goal) |> 
-  View()
+  filter(no_pen_exp_goal > exp_goal) #|> 
+  #View()
 
 #Verifying that no_pen_exp_goal_against is not greater than exp_goal_against
 data_per_game |> 
-  filter(no_pen_exp_goal_against > exp_goal_against) |> 
-  View()
+  filter(no_pen_exp_goal_against > exp_goal_against) #|> 
+  #View()
 
 #Verifying coherence between scores, results and points
 data_per_game |> 
-  filter(wins == 1, scored <= conceded) |> 
-  View()
+  filter(wins == 1, scored <= conceded) #|> 
+  #View()
 
 data_per_game |> 
-  filter(draws == 1, scored != conceded) |> 
-  View()
+  filter(draws == 1, scored != conceded) #|> 
+  #View()
 
 data_per_game |> 
-  filter(loses == 1, scored >= conceded) |> 
-  View()
+  filter(loses == 1, scored >= conceded) #|> 
+  #View()
 
 data_per_game |> 
-  filter(pts != wins*3 + draws*1) |> 
-  View()
+  filter(pts != wins*3 + draws*1) #|> 
+  #View()
 
 #Verifying the values of no_pen_exp_goal_diff
 data_per_game |> 
-  filter(no_pen_exp_goal_diff - (no_pen_exp_goal - no_pen_exp_goal_against) > 0.01) |> 
-  View()
+  filter(no_pen_exp_goal_diff - (no_pen_exp_goal - no_pen_exp_goal_against) > 0.01) #|> 
+  #View()
 
 #Verifying the values of exp_goal_diff
 data_per_game |> 
-  filter(exp_goal_diff - (exp_goal - scored) > 0.01) |> 
-  View()
+  filter(exp_goal_diff - (exp_goal - scored) > 0.01) #|> 
+  #View()
 
 #Verifying the values of exp_goal_against_diff
 data_per_game |> 
-  filter(exp_goal_against_diff - (exp_goal_against - conceded) > 0.01) |> 
-  View()
+  filter(exp_goal_against_diff - (exp_goal_against - conceded) > 0.01) #|> 
+  #View()
 
 #Verifying the values of exp_pts_diff
 data_per_game |> 
-  filter(exp_pts_diff - (exp_pts - as.numeric(as.character(pts))) > 0.01) |> 
-  View()
+  filter(exp_pts_diff - (exp_pts - as.numeric(as.character(pts))) > 0.01) #|> 
+  #View()
 
 
 
@@ -220,7 +224,7 @@ sort(unique(data_per_club$team))
 
 ##Check for possible errors on the number of matches played
 unique(data_per_club$matches)
-View(table(data_per_club$matches))
+#View(table(data_per_club$matches))
 #The Bundesliga has 18 teams for a total of 34 matches per team.
 #The other leagues have 20 teams, for a total of 38 matches per team.
 #The 37 value accounts for the 10 teams of the 5 missing matches from 02/08/20
@@ -289,14 +293,14 @@ summary(data_per_club$exp_pts_diff)
 data_per_club |> 
   group_by(league, year, position) |> 
   summarise(frequency = n()) |> 
-  filter(frequency != 1) |> 
-  View()
+  filter(frequency != 1) #|> 
+  #View()
 
 #Verify the number of teams that has a determined number of matches in a season
 data_per_club |> 
   group_by(league, year, matches) |> 
-  summarise(frequency = n()) |> 
-  View()
+  summarise(frequency = n()) #|> 
+  #View()
 #The Bundesliga has 18 teams for a total of 34 matches per team.
 #The other leagues have 20 teams, for a total of 38 matches per team.
 #The 37 value accounts for the 10 teams of the 5 missing matches from 02/08/20
@@ -305,43 +309,43 @@ data_per_club |>
 
 #Verify that all the matches are counted in a result outcome
 data_per_club |> 
-  filter(matches - (wins + draws + loses) > 0.01) |> 
-  View()
+  filter(matches - (wins + draws + loses) > 0.01) #|> 
+  #View()
 
 #Verify the points obtained are calculated properly
 data_per_club |> 
-  filter(pts - (wins*3 + draws*1) > 0.01) |> 
-  View()
+  filter(pts - (wins*3 + draws*1) > 0.01) #|> 
+  #View()
 
 #Verifying the values of exp_goal_diff
 data_per_club |> 
-  filter(exp_goal_diff - (exp_goal - scored) > 0.01) |> 
-  View()
+  filter(exp_goal_diff - (exp_goal - scored) > 0.01) #|> 
+  #View()
 
 #Verifying the values of exp_goal_against_diff
 data_per_club |> 
-  filter(exp_goal_against_diff - (exp_goal_against - conceded) > 0.01) |> 
-  View()
+  filter(exp_goal_against_diff - (exp_goal_against - conceded) > 0.01) #|> 
+  #View()
 
 #Verifying that no_pen_exp_goal is not greater than exp_goal
 data_per_club |> 
-  filter(no_pen_exp_goal > exp_goal) |> 
-  View()
+  filter(no_pen_exp_goal > exp_goal) #|> 
+  #View()
 
 #Verifying that no_pen_exp_goal_against is not greater than exp_goal_against
 data_per_club |> 
-  filter(no_pen_exp_goal_against > exp_goal_against) |> 
-  View()
+  filter(no_pen_exp_goal_against > exp_goal_against) #|> 
+  #View()
 
 #Verifying the values of no_pen_exp_goal_diff
 data_per_club |> 
-  filter(no_pen_exp_goal_diff - (no_pen_exp_goal - no_pen_exp_goal_against) > 0.01) |> 
-  View()
+  filter(no_pen_exp_goal_diff - (no_pen_exp_goal - no_pen_exp_goal_against) > 0.01) #|> 
+  #View()
 
 #Verifying the values of exp_pts_diff
 data_per_club |> 
-  filter(exp_pts_diff - (exp_pts - pts) > 0.01) |> 
-  View()
+  filter(exp_pts_diff - (exp_pts - pts) > 0.01) #|> 
+  #View()
 
 ## Check to see no duplicates and the pairing of opponent is done correctly on a 1-1 basis (Santiago)
 length(data_per_game$league[duplicated(cbind(data_per_game$league, 

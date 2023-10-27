@@ -17,13 +17,13 @@ Nicholas Medizza, Santiago Camargo Carrillo, Joao Aires
 
 The increasing amount of data in the football world create an opportunity to implement statistic analysis in order to try to find new patterns and develop models to predict for example number of goals scored and probability of winning.
 
-Given that our data for this project are not well suited to develope statistic model, we decided to implement a descriptive statistical analysis.
+Given that our data for this project are not well suited to develope statistic models, we decided to implement a descriptive statistical analysis.
 
 The scope of this project is to develop an interactive dashboard with the aim to help football fans navigate through different plots and tables and discover how teams across different leagues performed from the season 2014/2015 to 2019/2020.
 
 # Data
 
-Our data was downloaded from the website Kaggle (`https://www.kaggle.com/datasets/slehkyi/extended-football-stats-for-european-leagues-xg`) and the two main datasets that have been used are data from each given match played by teams in the top 5 european leagues for 6 seasons (from the season starting in 2014 until the one that began in 2019). The second dataset contains the final position for each league across with related information for the same years. All the columns in the dataset and their respective meaning is reported below.
+Our data was downloaded from the website Kaggle (`https://www.kaggle.com/datasets/slehkyi/extended-football-stats-for-european-leagues-xg`) and the two main datasets that have been used are data from each given match played by teams in the top 5 european leagues for 6 seasons (from the season starting in 2014 until the one that began in 2019). The second dataset contains the final position for each league along with related information for the same years. All the columns in the dataset and their respective meaning are reported below.
 
 The standard columns are **league**, **year**, **position**, **scored** (for goals scored), **missed** (for goals conceded), **result**, **date**, **team**, **wins** (for amount of matches won), **draws** (for amount of matches drawed), **loses** (for amount of matches lost), **pts** (for total points), **team**, **position**, **matches** (for amount of matches played) and **h_a** (stating if the match was played at home or away).
 
@@ -73,11 +73,11 @@ print(as_tibble(data_per_game))
 
 First, the column names of both data frames were changed so that they were more organized and explicit to the variable they represented. Additionally, the data for the Russian league was excluded, as the interest lies in the top 5 European leagues.
 
-A data validation was carried out for both data sets, checking for missing values (all the rows were complete), possible errors or typos in the data, atypical results that could be an error, which were then verified and overall coherence and consistence of the data.
+A data validation was carried out for both data sets, checking for missing values (all the rows were complete), possible errors or typos in the data, atypical results that could be an error (which were then verified) and overall coherence and consistency of the data.
 
-The information of our datasets is updated as of 01/08/2020, so there are 5 matches from the 2019/2020 Serie A, which took place in 02/08/2020. We considered trying to gather the information of these matches but we didn't manage to find the metrics, so we decided to work without this information.
+The information of our datasets is updated as of 01/08/2020, so there are 5 missing matches from the 2019/2020 Serie A, which took place in 02/08/2020. We considered trying to gather the information of these matches but we didn't manage to find the metrics, so we decided to work without this information.
 
-Aditionally, the 2019/2020 Ligue 1 was not completed due tu COVID 19, so not all matches were played for this season. However, the information of all the matches that were played is in the datasets, so we decided to include this season for our visualization.
+Aditionally, the 2019/2020 Ligue 1 was not completed due to COVID 19, so not all matches were played for this season. However, the information of all the matches that were played is in the datasets, so we decided to include this season for our visualization.
 
 As it is shown above, the dataset containing the information per game is given for each team and match. However, we don't have the information regarding which team was the opponent for each specific match. This information is contained (implicitly) in the same data, as every match appears as a duplicate for both teams. Therefore, it is easy to recover this data and create the column **opponent** to have this information now explicitly as part of the data frame.
 
@@ -170,13 +170,8 @@ wins <- winjoin |>
 
 ```
 
-```{r}
 
-
-
-```
-
-# eda
+# EDA
 
 **Team**
 
@@ -255,7 +250,7 @@ data_per_club |>
     theme(plot.title = element_text(hjust = 0.5))
 ```
 
-Let's begin with it. We notice that first ranked teams over-perform because their attack and defense were better than expected. Conversely, the lowest-ranked teams under-perform. However, there is no dominant trend between middle ranked teams. So, this fact is reiterated throughout all the years and leagues (The data used comes from the Premier League season 2014/2015).
+We notice that first ranked teams over-perform because their attack and defense were better than expected. Conversely, the lowest-ranked teams under-perform. However, there is no dominant trend between middle ranked teams. So, this fact is reiterated throughout all the years and leagues (The data used comes from the Premier League season 2014/2015).
 
 Then, we can notice that both lines decrease. It brings out that the less a team has a difference of goals, the less their ranking is. So this result brings out that teams with a strong defense and a efficient attack have great chances to be high ranked. As depicted by the plot below, this pattern is prevailing throughout all the years for the five leagues of our research.
 
@@ -497,19 +492,19 @@ Using the sidebar provided on the left the user can choose the season's year, th
 
 ![Drop Down Menu](Report_Dashboard_files/screenshots_Dashboard/drop_down_menu.png){height="300" fig-align="left"}
 
-The first information shown are probaly the most indicative of the performance of the selected team.
+The first information shown is the most indicative of the performance of the selected team.
 
-Are reported the final position in the ranking, number of wins and defeated for matches played at home and away.
+Are reported the final position in the ranking, number of wins and loses for matches played at home and away.
 
 ![Value Boxe](Report_Dashboard_files/screenshots_Dashboard/Value_boxes.png)
 
-The second main feature is the possibility to compare the performance of the principal team with an another selected team. A table shows for these two teams their historic results. Next to it there is a table race that compares their total points along the season. It gives us an indicator on the performance relative to the other team.
+The second main feature is the possibility to compare the performance of the principal team with another selected team. A table shows for these two teams their historic results. Next to it there is a table race that compares their total points along the season. It gives us an indicator on the performance relative to the other team.
 
 ![DashBoard](Report_Dashboard_files/screenshots_Dashboard/head_to_head.png)
 
 ### Nation League page
 
-The second page aims to give an overall understanding, for each of the five leagues, on how the teams performed relative to each others. The most important metric used are the difference of goal scored per ranking position, the expected goals for a team and the expected goal against.
+The second page aims to give an overall understanding, for each of the five leagues, on how the teams performed relative to each other. The most important metrics used are the difference of goal scored per ranking position, the expected goals for a team and the expected goal against.
 
 Selecting the year and league on the left of the dashboard, the graphs will change the information.
 
@@ -517,7 +512,7 @@ Selecting the year and league on the left of the dashboard, the graphs will chan
 
 ### Comparison across leagues
 
-The last page of this dashboard aims to take into account all the five european in order to asses which leagues performed better and which one is the most competitive.
+The last page of this dashboard aims to take into account all the five european leagues in order to asses which leagues performed better and which one is the most competitive.
 
 The user can choose if to show all the leagues or only a subset of them.
 
