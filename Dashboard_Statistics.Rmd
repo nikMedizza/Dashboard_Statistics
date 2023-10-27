@@ -552,19 +552,23 @@ column
 renderPlot({
   data_per_club |> 
     filter(league == input$league_league, year == input$league_year) |>
-  ggplot() +
-  geom_line(aes(x=position, y=goal_diff, color = "red" )) +
-  geom_point(aes(x=position, y=goal_diff, color = "red")) +
-  geom_line(aes(x=position, y=no_pen_exp_goal_diff, color = "green")) +
-  geom_point(aes(x=position, y=no_pen_exp_goal_diff, color = "green")) +
-  scale_y_continuous(breaks = seq(-70,100, by = 5)) +
-  scale_x_continuous(breaks = seq(1,20,  by = 1)) +
-  theme_linedraw() +
-  labs(title = "Difference of goals per ranking position",
-       x = "Ranking",
-       y = "Difference of goals",
-       caption = "Green curve represents expected difference of goals") + 
-  theme(plot.title = element_text(hjust = 0.5))
+    ggplot() +
+    geom_line(aes(x=position, y=goal_diff, color = "Goals difference")) +
+    geom_point(aes(x=position, y=goal_diff, color = "Goals difference")) +
+    geom_line(aes(x=position, y=no_pen_exp_goal_diff, color = "Expected goals difference")) +
+    geom_point(aes(x=position, y=no_pen_exp_goal_diff, color = "Expected goals difference")) +
+    scale_y_continuous(breaks = seq(-70,100, by = 5)) +
+    scale_x_continuous(breaks = seq(1,20,  by = 1)) +
+    theme_bw() +
+    labs(title = "Study the impact of overall team net performance according to ranking position",
+         x = "Ranking position",
+         y = "Difference of goals",
+         color = "Graph legend",  #In order to change the colour name
+         scale_colour_manual("Graph legend", 
+                             breaks = c("Goals difference", 
+                                        "Expected goals difference"), 
+                             values = c("red","green"))) +
+    theme(plot.title = element_text(hjust = 0.5))
 })
 ```
 
@@ -581,19 +585,19 @@ custom_colors <- c("2014"= "darkgreen","2015"="darkseagreen","2016"="khaki","201
 renderPlot({
   data_per_club |>
     filter(league == input$league_league) |>
-  ggplot(aes(x=position, y = goal_diff, color = as.factor(year), group = as.factor(year))) +
-  geom_smooth(se = FALSE) +
-  scale_color_manual(values = custom_colors) +
-  scale_x_continuous(breaks = seq(1,20, by = 1)) +
-  scale_y_continuous(breaks = seq(-60,80, by = 10)) +
-  theme_bw() +
-  labs(title = "Relation between goals difference per ranking",
-       x = "Ranking",
-       y = "Goals difference",
-       color = "Years") + 
-  theme(plot.title = element_text(hjust = 0.5))
+    ggplot(aes(x=position, y = goal_diff, color = as.factor(year), group = as.factor(year))) +
+    geom_smooth(se = FALSE) +
+    scale_color_manual(values = custom_colors) +
+    scale_x_continuous(breaks = seq(1,20, by = 1)) +
+    scale_y_continuous(breaks = seq(-60,80, by = 10)) +
+    theme_bw() +
+    labs(title = "Evolution of overall team net performance throughout the years",
+         x = "Ranking position",
+         y = "Difference of goals",
+         color = "Years") + 
+    theme(plot.title = element_text(hjust = 0.5))
+  
 })
-
 ```
 
 
@@ -607,28 +611,25 @@ column  {.tabset}
 renderPlot({
   
   data_per_club |>
-              filter(league == input$league_league, year == input$league_year) |>
-              mutate(Average_goalscored_per_game = scored/matches,
-                     Average_goalsconceded_per_game = conceded/matches) |>
-  ggplot(aes(x=wins,y=Average_goalscored_per_game)) +
-  geom_point(aes(color = team)) +
-  geom_point(size = 2.5, shape = 1) +
-  geom_smooth(se=FALSE) +
-  scale_x_continuous(breaks = seq(0,38, by = 1)) +
-  scale_y_continuous(breaks = seq(0.50,3, by = 0.25 )) +
-  theme_bw() +
-  labs(title = "Average goals scored per game",
-       x = "Games won",
-       y = "Average goals scored per game",
-       color = "Teams",
-       caption = "The game isn't necessarily won") +
-  ggrepel::geom_label_repel(aes(label=position), max.overlaps = Inf) + 
-  theme(plot.title = element_text(hjust = 0.5))
+    filter(league == input$league_league, year == input$league_year) |>
+    mutate(Average_goalscored_per_game = scored/matches,
+           Average_goalsconceded_per_game = conceded/matches) |>
+    ggplot(aes(x=wins,y=Average_goalscored_per_game)) +
+    geom_point(aes(color = team)) +
+    geom_point(size = 2.5, shape = 1) +
+    geom_smooth(se=FALSE) +
+    scale_x_continuous(breaks = seq(0,38, by = 1)) +
+    scale_y_continuous(breaks = seq(0.50,3, by = 0.25 )) +
+    theme_bw() +
+    labs(title = "Study the impact of total wins of a team on its goals scored per game",
+         x = "Number of wins",
+         y = "Goals scored per game",
+         color = "Teams",
+         caption = "The numbers inside the box are the ranking of the team") +
+    ggrepel::geom_label_repel(aes(label=position), max.overlaps = Inf) + 
+    theme(plot.title = element_text(hjust = 0.5))
   
 })
-
-
-
 ```
 
 
@@ -639,24 +640,24 @@ renderPlot({
 renderPlot({
   
   data_per_club |>
-              filter(league == input$league_league, year == input$league_year) |>
-              mutate(Average_goalscored_per_game = scored/matches,
-                     Average_goalsconceded_per_game = conceded/matches) |>
-  ggplot(aes(x=loses, y=Average_goalsconceded_per_game)) +
-  geom_point(aes(color = team)) +
-  geom_point(size = 2.5, shape = 1) +
-  geom_smooth(se=FALSE) +
-  scale_x_reverse(breaks = seq(0,30,1)) +
-  scale_y_continuous(breaks = seq(0.50,3, by = 0.25 )) +
-  theme_bw() +
-  labs(title = "Average goals conceded per game",
-       x = "Games lost",
-       y = "Average goals conceded per game",
-       color = "Teams",
-       caption = "The game isn't necessarily lost") +
-  ggrepel::geom_label_repel(aes(label=position), max.overlaps = Inf) + 
-  theme(plot.title = element_text(hjust = 0.5))
-
+    filter(league == input$league_league, year == input$league_year) |>
+    mutate(Average_goalscored_per_game = scored/matches,
+           Average_goalsconceded_per_game = conceded/matches) |>
+    ggplot(aes(x=loses, y=Average_goalsconceded_per_game)) +
+    geom_point(aes(color = team)) +
+    geom_point(size = 2.5, shape = 1) +
+    geom_smooth(se=FALSE) +
+    scale_x_reverse(breaks = seq(0,30,1)) +
+    scale_y_continuous(breaks = seq(0.50,3, by = 0.25 )) +
+    theme_bw() +
+    labs(title = "Study the impact of total losses of a team on its goals conceded per game",
+         x = "Number of loses",
+         y = "Goals conceded per game",
+         color = "Teams",
+         caption = "The numbers inside the box are the ranking of the team") +
+    ggrepel::geom_label_repel(aes(label=position), max.overlaps = Inf) + 
+    theme(plot.title = element_text(hjust = 0.5))
+  
 })
 ```
 
@@ -665,17 +666,18 @@ renderPlot({
 ```{r}
 renderPlot({
   wins |>
-        filter(league == input$league_league) |>
-  ggplot(aes(x=position, y=home_wins, fill = team)) +
-  geom_bar(stat = "identity", alpha = 0.75) +
-  scale_y_continuous(breaks = seq(0,18, by=3)) +
-  theme_bw() +
-  labs(title = "Relation between nb of wins at home and the ranking",
-       x = "Ranking in the league",
-       y = "Total wins at home",
-       fill = "The top 4") +
-  coord_flip() +
-  facet_wrap(~year)
+    filter(league == input$league_league) |>
+    ggplot(aes(x=position, y=home_wins, fill = team)) +
+    geom_bar(stat = "identity", alpha = 0.75) +
+    scale_y_continuous(breaks = seq(0,18, by=3)) +
+    theme_bw() +
+    labs(title = "Potential league champion due to wins at home",
+         x = "Ranking in the league",
+         y = "Number of wins at home",
+         fill = "The top 4 teams") +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    coord_flip() +
+    facet_wrap(~year)
 
 })
 ```
@@ -683,20 +685,21 @@ renderPlot({
 ### Link between wins away and ranking
 
 ```{r}
-renderPlot({
-  wins |>
-        filter(league == input$league_league) |>
-ggplot(aes(x=position, y=away_wins, fill=team)) +
-  geom_bar(stat="identity", alpha = 0.75) +
-  scale_y_continuous(breaks = seq(0,18, by=3)) +
-  theme_bw() +
-  labs(title = "Relation between number of wins away and the ranking",
-       x = "Ranking in the league",
-       y = "Total of wins away",
-       fill = "The top 4") + 
-    coord_flip() + 
-    facet_wrap(~ year)
-
+  renderPlot({
+    wins |>
+      filter(league == input$league_league) |>
+      ggplot(aes(x=position, y=home_wins, fill = team)) +
+      geom_bar(stat = "identity", alpha = 0.75) +
+      scale_y_continuous(breaks = seq(0,18, by=3)) +
+      theme_bw() +
+      labs(title = "Potential league champion due to wins away",
+           x = "Ranking in the league",
+           y = "Number of wins away",
+           fill = "The top 4 teams") +
+      theme(plot.title = element_text(hjust = 0.5)) +
+      coord_flip() +
+      facet_wrap(~year)
+   
 })
 ```
 
