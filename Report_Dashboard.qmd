@@ -92,8 +92,7 @@ As it is shown above, the dataset containing the information per game is given f
 ```
 
 # eda
-<<<<<<< HEAD
-=======
+
 
 **Team**
 
@@ -166,7 +165,7 @@ In this part, we used to study the total number of wins at home and away per sea
 **Analysis of winner league prediction across leagues**
 
 ![](images/Nico,%20exp%20total%20pts%20earned.png)
->>>>>>> d8aa7ca (Updating the EDA report part)
+
 
 # analysis
 
