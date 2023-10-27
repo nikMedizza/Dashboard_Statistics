@@ -1,6 +1,6 @@
 ---
 title: "Interactive Dashboard"
-format: pdf
+format: html
 execute:
   echo: FALSE
 editor: visual
@@ -13,11 +13,13 @@ html:
 
 Nicholas Medizza, Santiago Camargo Carrillo, Joao Aires
 
+October 27 2023
+
 # Introduction
 
 The increasing amount of data in the football world create an opportunity to implement statistic analysis in order to try to find new patterns and develop models to predict for example number of goals scored and probability of winning.
 
-Given the data and resources available, we can’t develop a statistical model. We have therefore decided to restrict ourselves to a descriptive statistical analysis. The scope of this project is to develop an interactive dashboard in order to allow any football fan to better know about their favorite teams and leagues, from the season 2014/2015 to 2019/2020.
+Given the data and resources available, we can't develop a statistical model. We have therefore decided to restrict ourselves to a descriptive statistical analysis. The scope of this project is to develop an interactive dashboard in order to allow any football fan to better know about their favorite teams and leagues, from the season 2014/2015 to 2019/2020.
 
 # Data
 
@@ -525,4 +527,4 @@ At the top of the page the champions are shown for each league, with the main in
 
 # Conclusion
 
-During this project, we tried to put the most relevant and understandable patterns to be handled by the user. Our analyses were limited by the data uploaded because we haven’t collected it by ourselves. So in the future, it would be better to extent the data powering the dashboard using multiple datasets and adding information from new seasons, including the 5 missing matches from the Serie A, which enable us to choose and combine more metrics.
+During this project, we tried to put the most relevant and understandable patterns to be handled by the user. Our analyses were limited by the data uploaded because we haven't collected it by ourselves. So in the future, it would be better to extent the data powering the dashboard using multiple datasets and adding information from new seasons, including the 5 missing matches from the Serie A, which enable us to choose and combine more metrics.
