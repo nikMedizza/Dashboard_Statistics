@@ -73,7 +73,7 @@ print(as_tibble(data_per_game))
 
 First, the column names of both data frames were changed so that they were more organized and explicit to the variable they represented. Additionally, the data for the Russian league was excluded, as the interest lies in the top 5 European leagues.
 
-A data validation was carried out for both data sets, checking for missing values (all the rows were complete), possible errors or typos in the data, atypical results that could be an error, which were then verified and overall coherence and consistence of the data. 
+A data validation was carried out for both data sets, checking for missing values (all the rows were complete), possible errors or typos in the data, atypical results that could be an error, which were then verified and overall coherence and consistence of the data.
 
 The information of our datasets is updated as of 01/08/2020, so there are 5 matches from the 2019/2020 Serie A, which took place in 02/08/2020. We considered trying to gather the information of these matches but we didn't manage to find the metrics, so we decided to work without this information.
 
@@ -198,9 +198,7 @@ data_per_game |>
 
 ```
 
-
 We compute the sum of points acquired for each match day by 2 teams through the season. It enables us to compare their performance, assess the intensity level and depict the turning points.
-
 
 ```{r message=FALSE}
 data_per_game |> 
@@ -225,9 +223,7 @@ data_per_game |>
     theme_bw()
 ```
 
-
 We use here 2 variables "Goals scored" and "Expected goals scored" for each match day. The aim is to measure the level of scoring performance through the season.
-
 
 **National league**
 
@@ -415,9 +411,7 @@ data_per_club |> filter(year == 2014,
 
 ```
 
-
 As done in the league part, we have replicated the same plot on net team performance but across leagues. It enables to determine which league has the highest performances. We have restricted the number of teams in order to have a better display.
-
 
 **Comparison of average teams' pressure across the leagues**
 
@@ -431,13 +425,11 @@ data_per_club |> filter(year == 2014) |>
                  theme_bw()
 ```
 
-
 **Comparison of total goals scored per league and its volatility across leagues**
 
 We compare the average pressure of each league among them by using the "ppda_coef" metric. It allows to determine which league has the highest game intensity.
 
 **Comparison of total goals scored per league across leagues**
-
 
 ```{r message=FALSE}
 data_per_game1 |> filter(year == 2014) |> 
@@ -471,13 +463,11 @@ data_per_club |> filter(year == 2014) |> group_by(league) |>
                    facet_wrap(~league)
 ```
 
-
 **Analysis of winner league prediction across leagues**
 
 We interact the average goals scored to the average passes completed among each league. We notice that the higher goals a team scores, the more he plays with ball.
 
 **Analysis of winner league points prediction across leagues**
-
 
 ```{r message=FALSE}
 data_per_club |> filter(position == 1, 
@@ -491,9 +481,7 @@ data_per_club |> filter(position == 1,
                       theme_bw()
 ```
 
-
 We compare how accurate are the "expected points" metric across leagues.
-
 
 # analysis
 
