@@ -1,6 +1,6 @@
 ---
 title: "Interactive Dashboard"
-format: html
+format: pdf
 execute:
   echo: FALSE
 editor: visual
@@ -508,7 +508,10 @@ The second page aims to give an overall understanding, for each of the five leag
 
 Selecting the year and league on the left of the dashboard, the graphs will change the information.
 
-![League Page](Report_Dashboard_files/screenshots_Dashboard/Leagues.png)
+![leagues page overall view](Report_Dashboard_files/screenshots_Dashboard/League_1.png)
+On the second part more interactive plots are shown
+
+![League Page](Report_Dashboard_files/screenshots_Dashboard/League_2.png)
 
 ### Comparison across leagues
 
