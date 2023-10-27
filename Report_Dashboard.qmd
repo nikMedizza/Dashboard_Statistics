@@ -5,8 +5,8 @@ execute:
   echo: FALSE
 editor: visual
 html:
-  fig-width: 7
-  fig-height: 5
+  fig-width: 30
+  fig-height: 20
 ---
 
 #### AUTHORS
@@ -79,9 +79,92 @@ First, the column names of both data frames were changed so that they were more 
 
 As it is shown above, the dataset containing the information per game is given for each team and match. However, we don't have the information regarding which team was the opponent for each specific match. This information is contained (implicitly) in the same data, as every match appears as a duplicate for both teams. Therefore, it is easy to recover this data and create the column **opponent** to have this information now explicitly as part of the data frame.
 
-```{r}
+```{r setup, include = FALSE}
+library(tidyverse)
+library(ggrepel)
+library(ggplot2)
+#knitr::opts_chunk$set(fig.width = 5)
 
 
+#read the data
+data1 <- read_csv(file = "data/understat_per_game.csv")
+data2 <- read_csv(file = "data/understat.com.csv")
+
+colnames_1 = c("league", "year", "stadium", "exp_goal", "exp_goal_against", 
+               "no_pen_exp_goal", "no_pen_exp_goal_against", "deep", 
+               "deep_allowed", "scored", "conceded", "exp_pts", "result", "date", 
+               "wins", "draws", "loses", "pts", "no_pen_exp_goal_diff", "ppda_coef", 
+               "ppda_att", "ppda_def", "oppda_coef", "oppda_att", "oppda_def", 
+               "team", "exp_goal_diff", "exp_goal_against_diff", 
+               "exp_pts_diff")
+
+colnames(data1) = colnames_1
+
+colnames_2 = c("league", "year", "position", "team", "matches", "wins", "draws", 
+               "loses", "scored", "conceded", "pts", "exp_goal", "exp_goal_diff", 
+               "no_pen_exp_goal", "exp_goal_against", "exp_goal_against_diff", 
+               "no_pen_exp_goal_against", 
+               "no_pen_exp_goal_diff", "ppda_coef", "oppda_coef", "deep", 
+               "deep_allowed", "exp_pts", "exp_pts_diff")
+
+colnames(data2) = colnames_2
+
+data_per_game <- data1 |> 
+  mutate("stadium" = as.factor(stadium), 
+         "result" = as.factor(result), 
+         "league" = as.factor(league),
+         "pts" = as.factor(pts)) |> 
+  filter(league != "RFPL")
+
+data_per_club <- data2 |> 
+  filter(league != "RFPL") |> 
+  mutate("goal_diff" = scored - conceded)
+
+## Check to see no duplicates and the pairing of opponent is done correctly on a 1-1 basis
+length(data_per_game$league[duplicated(cbind(data_per_game$league, 
+                                             data_per_game$year, 
+                                             data_per_game$date, 
+                                             data_per_game$scored, 
+                                             data_per_game$conceded, 
+                                             data_per_game$exp_goal_against, 
+                                             data_per_game$exp_goal, 
+                                             data_per_game$ppda_coef, 
+                                             data_per_game$oppda_coef))])
+
+## Link opponents to each respective match
+temp_opponents = data_per_game |> select(league, year, date, scored, 
+                                         conceded, exp_goal_against, exp_goal, 
+                                         ppda_coef, oppda_coef, "opponent" = team)
+
+data_per_game = data_per_game |> 
+  left_join(temp_opponents, by = c("league" = "league", "year" = "year", 
+                                   "date" = "date", "scored" = "conceded", 
+                                   "conceded" = "scored", 
+                                   "exp_goal_against" = "exp_goal", 
+                                   "exp_goal" = "exp_goal_against", 
+                                   "ppda_coef" = "oppda_coef", 
+                                   "oppda_coef" = "ppda_coef"))
+
+
+## Df created for plot 5 and 6 (Joao)
+wins_home <- data_per_game |>
+  filter(result =="w", stadium == "h") |>
+  group_by(year, league, team) |>
+  summarize(home_wins = n())
+
+wins_away <- data_per_game |>
+  filter(result =="w", stadium != "h") |>
+  group_by(year, league, team) |>
+  summarize(away_wins = n())
+
+winjoin <- full_join(wins_home, wins_away, by = c("year", "league", "team"))
+
+data_selected <- data_per_club |>
+  select(year, league, team, position)
+
+wins <- winjoin |>
+  left_join(data_selected, by = c("year", "league", "team")) |>
+  filter(position < 5)
 
 ```
 
@@ -95,9 +178,47 @@ As it is shown above, the dataset containing the information per game is given f
 
 **Team**
 
-![](images/Santi,%20cummulative%20points%20comparison%20per%20match%20day.png)
+```{r message=FALSE}
+data_per_game |> 
+    filter((team == "Augsburg" | team == "Schalke 04") & 
+             year == 2014) |> 
+    group_by(team) |> 
+    mutate("match" = c(1:n()), pts = as.numeric(as.character(pts))) |> 
+    ungroup() |> 
+    group_by(team, match) |> 
+    summarize(pts = sum(pts)) |> 
+    mutate(pts_cum = cumsum(pts)) |> 
+    ggplot(mapping = aes(match, pts_cum, color = team)) + 
+    geom_line() + 
+    geom_point() + 
+    labs(x = "Match Day", y = "Cummulative Points") + 
+    theme_bw()
+```
 
-![](images/Santi,%20goals%20and%20expected%20goals%20scored%20through%20season.png)
+
+```{r message=FALSE}
+data_per_game |> 
+    filter(league == "Bundesliga", 
+           team == "Augsburg", 
+           year == 2014) |> 
+    group_by(team) |> 
+    mutate("match" = c(1:n()), pts = as.numeric(as.character(pts))) |> 
+    ungroup() |> 
+    ggplot() + 
+    geom_line(mapping = aes(match, exp_goal, color = "Expected Goals"), 
+              show.legend = TRUE) + 
+    geom_point(mapping = aes(match, exp_goal, color = "Expected Goals"), 
+              show.legend = TRUE) + 
+    geom_line(mapping = aes(match, scored, color = "Goals Scored"), 
+              show.legend = TRUE) + 
+    geom_point(mapping = aes(match, scored, color = "Goals Scored"), 
+              show.legend = TRUE) + 
+    scale_color_manual("", breaks = c("Expected Goals", "Goals Scored"), 
+                       values = c("red", "blue")) + 
+    labs(x = "Match Day", y = "Goals / Expected Goals") + 
+    theme_bw()
+```
+
 
 **National league**
 
@@ -107,19 +228,77 @@ In this part, we have analyzed how the values of the variables are spread, analy
 
 First, we analyze the net performance of a team according to their ranking by using the goals difference variable. Moreover, we add the expected goals difference which, coupled with the goals difference line, will indicate performance trends all along the ranking.
 
-![](images/Impact%20of%20overall%20team%20net%20performance%20according%20to%20ranking%20position.png)
+```{r message=FALSE}
+data_per_club |> 
+    filter(league == "EPL", year == 2014) |>
+    ggplot() +
+    geom_line(aes(x=position, y=goal_diff, color = "Goals difference")) +
+    geom_point(aes(x=position, y=goal_diff, color = "Goals difference")) +
+    geom_line(aes(x=position, y=no_pen_exp_goal_diff, color = "Expected goals difference")) +
+    geom_point(aes(x=position, y=no_pen_exp_goal_diff, color = "Expected goals difference")) +
+    scale_y_continuous(breaks = seq(-70,100, by = 5)) +
+    scale_x_continuous(breaks = seq(1,20,  by = 1)) +
+    theme_bw() +
+    labs(title = "Study the impact of overall team net performance according to ranking position",
+         x = "Ranking position",
+         y = "Difference of goals",
+         color = "Graph legend",  #In order to change the colour name
+         scale_colour_manual("Graph legend", 
+                             breaks = c("Goals difference", 
+                                        "Expected goals difference"), 
+                             values = c("red","green"))) +
+    theme(plot.title = element_text(hjust = 0.5))
+```
 
 Let's begin with it. We notice that first ranked teams over-perform because their attack and defense were better than expected. Conversely, the lowest-ranked teams under-perform. However, there is no dominant trend between middle ranked teams. So, this fact is reiterated throughout all the years and leagues (The data used comes from the Premier League season 2014/2015).
 
 Then, we can notice that both lines decrease. It brings out that the less a team has a difference of goals, the less their ranking is. So this result brings out that teams with a strong defense and a efficient attack have great chances to be high ranked. As depicted by the plot below, this pattern is prevailing throughout all the years for the five leagues of our research.
 
-![](images/Comparison%20of%20overall%20total%20goals%20difference%20throughout%20the%20years.png)
+```{r message=FALSE}
+custom_colors <- c("2014"= "darkgreen","2015"="darkseagreen","2016"="khaki","2017"="aquamarine","2018"="hotpink","2019"="deepskyblue")
+
+data_per_club |>
+    filter(league == "EPL") |>
+    ggplot(aes(x=position, y = goal_diff, color = as.factor(year), group = as.factor(year))) +
+    geom_smooth(se = FALSE) +
+    scale_color_manual(values = custom_colors) +
+    scale_x_continuous(breaks = seq(1,20, by = 1)) +
+    scale_y_continuous(breaks = seq(-60,80, by = 10)) +
+    theme_bw() +
+    labs(title = "Evolution of overall team net performance throughout the years",
+         x = "Ranking position",
+         y = "Difference of goals",
+         color = "Years") + 
+    theme(plot.title = element_text(hjust = 0.5))
+
+```
+
 
 **Analysis on the impact of total wins (total losses) of a team on its goals scored per game (goals conceded per game)**
 
 Next, we complement our mentioned approach by interacting the average of goals scored per game and the total wins of a team. Indeed, this approach makes the comparison between teams more "harmonious" since the total of games played are not the same in each league (this is the case of Bundesliga in which 34 games are played). (The scope of study uses the data of the Premier League for the season 2018/2019)
 
-![](images/Study%20the%20impact%20of%20total%20wins%20on%20its%20goals%20scored%20per%20game.jpg){width="665"}
+```{r message=FALSE}
+data_per_club |>
+    filter(league == "EPL", year == 2018) |>
+    mutate(Average_goalscored_per_game = scored/matches,
+           Average_goalsconceded_per_game = conceded/matches) |>
+    ggplot(aes(x=wins,y=Average_goalscored_per_game)) +
+    geom_point(aes(color = team)) +
+    geom_point(size = 2.5, shape = 1) +
+    geom_smooth(se=FALSE) +
+    scale_x_continuous(breaks = seq(0,38, by = 1)) +
+    scale_y_continuous(breaks = seq(0.50,3, by = 0.25 )) +
+    theme_bw() +
+    labs(title = "Study the impact of total wins of a team on its goals scored per game",
+         x = "Number of wins",
+         y = "Goals scored per game",
+         color = "Teams",
+         caption = "The numbers inside the box are the ranking of the team") +
+    ggrepel::geom_label_repel(aes(label=position), max.overlaps = Inf) + 
+    theme(plot.title = element_text(hjust = 0.5))
+```
+
 
 This plot shows the link between the average of goals scored per game (in overall) on the total of games won by the team. The ranking of the teams is also added which links up to our previous analyses. And the blue lign represents the average trend of the data.
 
@@ -129,41 +308,168 @@ Secondly, we discern that data are more or less concentrated on different areas.
 
 Conversely, we analyzed the link of the average of goals conceded per game and the total loses of a team. This complement and uphold our previous result which states that the more a team wins, the more he will score in average.
 
-![](images/avg_gconceded%20per%20total%20losses.png){width="664"}
+```{r message=FALSE}
+data_per_club |>
+    filter(league == "EPL", year == 2018) |>
+    mutate(Average_goalscored_per_game = scored/matches,
+           Average_goalsconceded_per_game = conceded/matches) |>
+    ggplot(aes(x=loses, y=Average_goalsconceded_per_game)) +
+    geom_point(aes(color = team)) +
+    geom_point(size = 2.5, shape = 1) +
+    geom_smooth(se=FALSE) +
+    scale_x_reverse(breaks = seq(0,30,1)) +
+    scale_y_continuous(breaks = seq(0.50,3, by = 0.25 )) +
+    theme_bw() +
+    labs(title = "Study the impact of total losses of a team on its goals conceded per game",
+         x = "Number of loses",
+         y = "Goals conceded per game",
+         color = "Teams",
+         caption = "The numbers inside the box are the ranking of the team") +
+    ggrepel::geom_label_repel(aes(label=position), max.overlaps = Inf) + 
+    theme(plot.title = element_text(hjust = 0.5))
+```
+
 
 **Analysis of a potential league champion due to its total of wins at home and away**
 
-![](images/Home%20-%20Potential%20league%20champion%20-01.jpg){width="664"}
+```{r message=FALSE}
+wins |>
+    filter(league == "EPL") |>
+    ggplot(aes(x=position, y=home_wins, fill = team)) +
+    geom_bar(stat = "identity", alpha = 0.75) +
+    scale_y_continuous(breaks = seq(0,18, by=3)) +
+    theme_bw() +
+    labs(title = "Potential league champion due to wins at home",
+         x = "Ranking in the league",
+         y = "Number of wins at home",
+         fill = "The top 4 teams") +
+    theme(plot.title = element_text(hjust = 0.5)) +
+    coord_flip() +
+    facet_wrap(~year)
+```
+
 
 In this part, we used to study the total number of wins at home and away per season of for the 4 first high ranked teams. The goal is to show how much difference there is among those teams in order to assess the fairness of competition and a potential factor to determine the winner. Using both variables enable us to complement this approach. Take note of the assumption that games away are harder to win because of traveling constraints and the hostile atmosphere in the opponent's stadium. In overall, the champion wins the most at home and away games but this is not always the case.
 
-![](images/Away%20-%20Potential%20league%20champion.jpg)
+```{r message=FALSE}
+wins |>
+      filter(league == "EPL") |>
+      ggplot(aes(x=position, y=away_wins, fill = team)) +
+      geom_bar(stat = "identity", alpha = 0.75) +
+      scale_y_continuous(breaks = seq(0,18, by=3)) +
+      theme_bw() +
+      labs(title = "Potential league champion due to wins away",
+           x = "Ranking in the league",
+           y = "Number of wins away",
+           fill = "The top 4 teams") +
+      theme(plot.title = element_text(hjust = 0.5)) +
+      coord_flip() +
+      facet_wrap(~year)
+```
+
 
 **Comparison across leagues**
 
 **Evolution of distribution of total goals scored and expected total goals scored for each league**
 
-![](images/Nico,%20distribution%20of%20goals%20scored.png)
+```{r message=FALSE}
+data_per_club |> 
+                                 ggplot() + 
+                                 geom_boxplot(aes(league, exp_goal, color = "Exp Tot Goals" )) +
+                                 geom_boxplot(aes(league, scored, color = "Tot goals scored")) +
+                                 labs(x = "League",
+                                      y = "Distribution of total goals scored") +
+                                 scale_colour_manual("Exp goal per match", 
+                                                     breaks = c("Exp Tot Goals", 
+                                                                "Tot goals scored"), 
+                                                     values = c("black","lightblue")) +
+                                 facet_wrap(~ year) +
+                                 theme_bw()
+```
 
 **Comparison of net team performance across the leagues**
 
-![](images/Nico,%20difference%20goals%20for%20the%20first%2010th%20teams.png)
+```{r message=FALSE, warning=FALSE}
+data_per_game <-data_per_game |> mutate("date" = as.Date(date, "%Y-%m-%d")) 
+
+data_per_game1 <- data_per_game |> 
+                  group_by(year, league, team) |> 
+                  mutate("match_day" = row_number())
+
+data_per_club |> filter(year == 2014, 
+                          position <= 10) |> 
+                     ggplot() + 
+                     geom_line(aes(position, goal_diff, color = league)) + 
+                     labs(x = "Teams ranked by final position",
+                          y = "Difference between goals scored and conceded ",
+                          color = "Top 5 leagues") +
+                     geom_point(aes(position, goal_diff, color = league)) +
+                     scale_x_continuous(breaks = seq(1,10, by = 2)) +
+                     theme_bw()
+
+```
+
 
 **Comparison of average teams' pressure across the leagues**
 
-![](images/Nico,%20Average%20team%20pressure%20within%20the%20league.png)
+```{r message=FALSE}
+data_per_club |> filter(year == 2014) |> 
+                 group_by(league) |> summarise(avg_opp_pressure = mean(ppda_coef)) |>
+                 ggplot() + 
+                 geom_bar(aes(league, avg_opp_pressure), stat = "Identity") + 
+                 labs(x = "Top five football leagues",
+                      y = "Average teams' pressure per league ") +
+                 theme_bw()
+```
+
 
 **Comparison of total goals scored per league and its volatility across leagues**
 
-![](images/Nico,%20trend%20and%20avg%20goals%20scored%20volatility%20analysis%20.png)
+```{r message=FALSE}
+data_per_game1 |> filter(year == 2014) |> 
+  group_by(league, match_day) |> 
+                    summarise(avg_goal_per_day = sum(scored)/(n()/2)) |>
+               ggplot() + 
+               geom_line(aes(match_day, 
+                             avg_goal_per_day, 
+                             color = league), 
+                             linetype = 2) +
+               geom_smooth(aes(match_day, 
+                               avg_goal_per_day, 
+                               color = league), se = FALSE) +
+               labs(x = "Match Day",
+                    y = "Average goal scored per match day") +
+               theme_bw()
+```
 
 **Comparison between average passes completed and average goals scored per match across leagues**
 
-![](images/Nico,%20Avg%20passes%20completed%20per%20goal%20scored.png)
+```{r message=FALSE}
+data_per_club |> filter(year == 2014) |> group_by(league) |>
+                   ggplot() + 
+                   geom_point(aes(scored/matches, deep/matches)) +
+                   geom_smooth(aes(scored/matches, deep/matches)) + 
+                   labs(x = "Average goal scored per match played by the team",
+                        y = "Average passages completed per match played by the team ") +
+                   theme_bw() +
+                   facet_wrap(~league)
+```
+
 
 **Analysis of winner league prediction across leagues**
 
-![](images/Nico,%20exp%20total%20pts%20earned.png)
+```{r message=FALSE}
+data_per_club |> filter(position == 1, 
+                             year == 2014) |> 
+                      ggplot( aes(x = team)) + 
+                      geom_bar(aes(y = exp_pts), position = "dodge", stat = "Identity") +
+                      geom_point(aes(y = pts, color = "Points"), shape = 17, size = 3) + 
+                      labs(x = "Winning teams for the top 5 leagues",
+                           y = "Expected total points earned during a season ") +
+                      scale_colour_manual("Total points", breaks = "Points", values = "blue") +
+                      theme_bw()
+```
+
 
 # analysis
 
