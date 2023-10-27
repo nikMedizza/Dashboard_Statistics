@@ -23,33 +23,41 @@ The scope of this project is to develop an interactive dashboard with the aim to
 
 # Data
 
-Our data were downloaded from the website Kaggle and the two main datasets that have been used are data from each given match played by teams in the top 5 european leagues. The second dataset contains the final position for each league across different years with related information. All the columns in the dataset and their respective meaning is reported below.
+Our data was downloaded from the website Kaggle (`https://www.kaggle.com/datasets/slehkyi/extended-football-stats-for-european-leagues-xg`) and the two main datasets that have been used are data from each given match played by teams in the top 5 european leagues for 6 seasons (from the season starting in 2014 until the one that began in 2019). The second dataset contains the final position for each league across with related information for the same years. All the columns in the dataset and their respective meaning is reported below.
 
-The standard columns are position, team, amount of matches played, wins, draws, loses, goals scored, goals missed, points.
+The standard columns are **league**, **year**, **position**, **scored** (for goals scored), **missed** (for goals conceded), **result**, **date**, **team**, **wins** (for amount of matches won), **draws** (for amount of matches drawed), **loses** (for amount of matches lost), **pts** (for total points), **team**, **position**, **matches** (for amount of matches played) and **h_a** (stating if the match was played at home or away).
 
 Additional metrics are:
 
+**xG** - expected goals, which is a representation of the chances created during the match.
+
+**xGA** - expected goals against, which is a representation of the chances created by the opponent during the match.
+
 **npxG** - expected goals without penalties and own goals.
-
-**xGA** - expected goals against.
-
-**xGA_diff** - difference between actual goals missed and expected goals against.
 
 **npxGA** - expected goals against without penalties and own goals.
 
-**npxGD** - difference between "for" and "against" expected goals without penalties and own goals.
+**deep** - passes completed within an estimated 20 yards of goal (crosses excluded).
 
-**ppda_coef** - passes allowed per defensive action in the opposition half (power of pressure)
+**deep_allowed** - opponent passes completed within an estimated 20 yards of goal (crosses excluded).
 
-**oppda_coef** - opponent passes allowed per defensive action in the opposition half (power of opponent's pressure)
+**xpts** - expected points, representing the points earned in the match according to the chances created by both teams.
 
-**deep** - passes completed within an estimated 20 yards of goal (crosses excluded)
+**npxGD** - difference between expected goals scored and expected goals conceded without penalties and own goals.
 
-**deep_allowed** - opponent passes completed within an estimated 20 yards of goal (crosses excluded)
+**ppda_coef** - passes allowed per defensive action in the opposition half (power of pressure).
 
-**xpts** - expected points
+**oppda_coef** - opponent passes allowed per defensive action in the opposition half (power of opponent's pressure).
 
-**xpts_diff** - difference between actual and expected points
+**xG_diff** - difference between expected goals scored and actual goals scored.
+
+**xGA_diff** - difference between expected goals conceded and actual goals conceded.
+
+**xpts_diff** - difference between expected points and actual points for the match.
+
+**"ppda_att" "ppda_def" "oppda_att" "oppda_def" MISSING THESE VARIABLES**
+
+**DO WE WANT TO JUSTIFY THE TEXT?**
 
 Below are reported the first rows for the two dataset.
 
@@ -66,6 +74,10 @@ print(as_tibble(data_per_game))
 
 
 ```
+
+First, the column names of both data frames were changed so that they were more organized and explicit to the variable they represented. Additionally, the data for the Russian league was excluded, as the interest lies in the top 5 European leagues.
+
+As it is shown above, the dataset containing the information per game is given for each team and match. However, we don't have the information regarding which team was the opponent for each specific match. This information is contained (implicitly) in the same data, as every match appears as a duplicate for both teams. Therefore, it is easy to recover this data and create the column **opponent** to have this information now explicitly as part of the data frame.
 
 ```{r}
 
