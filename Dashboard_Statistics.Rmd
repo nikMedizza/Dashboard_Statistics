@@ -736,6 +736,7 @@ Options {.sidebar}
 ------------------------
 
 ```{r}
+# creating the variable that stores the value choosen by the user
 selectInput("year_season", "Choose the season:",
                 c("2014/2015" = 2014,
                   "2015/2016" = 2015,
@@ -748,7 +749,8 @@ selectInput("year_season", "Choose the season:",
 
 
 ```{r}
-# Define the checkbox group input
+
+# Define the checkBox with the different leagues that the user wants to be shown on the page
 
 checkboxGroupInput("select_options", "Select the leagues:", 
                    choices = c("Bundesliga", "EPL", "Serie_A","La_liga" ,"Ligue_1"),
@@ -765,6 +767,8 @@ row  {data-orentation=columns data-height=250}
 
 ```{r, fig.width=3}
 
+# Printing on the dashboard the output of the table with the five winning teams in the leagues
+
 renderTable({
       data_per_club |> filter(year == input$year_season, position == 1) |> 
       select(year,league, team:pts, exp_pts, exp_goal) }, digits = 0, align = "l", spacing = "s")
@@ -779,6 +783,7 @@ row
 
 ```{r}
 
+# boxplot that compares the distribution of total goals scored with the total expected goals scored for all the years
  renderPlot({
       data_per_club |> filter(league %in% input$select_options) |> 
                                  ggplot() + 
@@ -808,15 +813,19 @@ row
 
 ```{r, fig.height=3}
 
-data_per_game <-data_per_game |> mutate("date" = as.Date(date, "%Y-%m-%d"))
+# Formatting the column of the match's date with just the year, month and day
+data_per_game <-data_per_game |> mutate("date" = as.Date(date, "%Y-%m-%d")) 
 
+# add a new column that shows for each match which was the match-day during the season
 data_per_game1 <- data_per_game |> 
                   group_by(year, league, team) |> 
                   mutate("match_day" = row_number())
 
 
-
 renderPlot({
+  
+  
+# comparing the difference of goal scored for the first 10th ranked teams in each of the league chosen by user 
   
   data_per_club |> filter(year == input$year_season, 
                           position <= 10, 
@@ -841,6 +850,9 @@ renderPlot({
 
 ```{r}
 
+
+# BarPlot displays the average pressure in the opponent pitch by league, a measure of intensity during a game 
+
 renderPlot({
   data_per_club |> filter(year == input$year_season, 
                           league %in% input$select_options) |> 
@@ -863,14 +875,15 @@ row {.tabset .tabset-fade}
 
 ```{r}
 
-
+# for each match-day played in the Premier League the barplot and the line chart compare the average goal scored per match-day 
+# with the average expected goal per match-day
 
 renderPlot({
   
   data_per_game1 |> filter(year == input$year_season, 
                            league == "EPL") |> group_by(match_day) |> 
-                  summarise(avg_goal_per_day = sum(scored)/10, 
-                            avg_exp_goal = sum(exp_goal)/10) |>
+                  summarise(avg_goal_per_day = sum(scored)/(n()/2), 
+                            avg_exp_goal = sum(exp_goal)/(n()/2)) |>
                     ggplot() + 
                   geom_bar(aes(match_day, avg_goal_per_day), fill="grey", stat = "Identity") +    
                   geom_line(aes(match_day, avg_exp_goal, color = "Exp Goals per match"), 
@@ -893,11 +906,13 @@ renderPlot({
 
 ```{r}
 
+# here is compared the average goal scored per match-day among leagues, the function geom_smooth emphasize the trend of this metric helping to visualize easily the pattern
+
 renderPlot({
   
   data_per_game1 |> filter(year == input$year_season, 
                            league %in% input$select_options) |> group_by(league, match_day) |> 
-                    summarise(avg_goal_per_day = sum(scored)/10) |>
+                    summarise(avg_goal_per_day = sum(scored)/(n()/2)) |>
                ggplot() + 
                geom_line(aes(match_day, 
                              avg_goal_per_day, 
@@ -919,8 +934,7 @@ renderPlot({
 
 ```{r}
 
-# try to change the intensity of of the lines so that it's easier to get the trend per league
-# fix also the denominator in the division for the exact number of matches played
+# here is the same plat as above but the expected goal is used and we show them for all of the years. here we want to compared if there has been a change in trend across different years
 
 renderPlot({
   
@@ -951,6 +965,9 @@ renderPlot({
 
 ```{r}
 
+# this Scatterplot compares the average of passages completed per goal with the average of goals per match played
+# here again the trend line is shown to get an idea on the type of the trend.
+
 renderPlot({
    
   data_per_club |> filter(year == input$year_season, 
@@ -976,6 +993,7 @@ column
 ### Expected goals scored and goals scored per teams winning the competition 
 
 ```{r}
+# for the five teams that won the league in their respective country is shown a barplot that compares their average tot goal scored with the expected total goals scored.
 
  renderPlot({
           
@@ -1001,6 +1019,8 @@ column
 ### Expected total points and effective points earned by the winning teams
 
 ```{r}
+
+# the same as above but here we choose as metrics the total points earned and the total expected points
 
 renderPlot({
           
