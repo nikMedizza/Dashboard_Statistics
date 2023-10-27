@@ -55,10 +55,6 @@ Additional metrics are:
 
 **xpts_diff** - difference between expected points and actual points for the match.
 
-**"ppda_att" "ppda_def" "oppda_att" "oppda_def" MISSING THESE VARIABLES**
-
-**DO WE WANT TO JUSTIFY THE TEXT?**
-
 Below are reported the first rows for the two dataset.
 
 ```{r, message = FALSE}
@@ -76,6 +72,12 @@ print(as_tibble(data_per_game))
 ```
 
 First, the column names of both data frames were changed so that they were more organized and explicit to the variable they represented. Additionally, the data for the Russian league was excluded, as the interest lies in the top 5 European leagues.
+
+A data validation was carried out for both data sets, checking for missing values (all the rows were complete), possible errors or typos in the data, atypical results that could be an error, which were then verified and overall coherence and consistence of the data. 
+
+The information of our datasets is updated as of 01/08/2020, so there are 5 matches from the 2019/2020 Serie A, which took place in 02/08/2020. We considered trying to gather the information of these matches but we didn't manage to find the metrics, so we decided to work without this information.
+
+Aditionally, the 2019/2020 Ligue 1 was not completed due tu COVID 19, so not all matches were played for this season. However, the information of all the matches that were played is in the datasets, so we decided to include this season for our visualization.
 
 As it is shown above, the dataset containing the information per game is given for each team and match. However, we don't have the information regarding which team was the opponent for each specific match. This information is contained (implicitly) in the same data, as every match appears as a duplicate for both teams. Therefore, it is easy to recover this data and create the column **opponent** to have this information now explicitly as part of the data frame.
 
