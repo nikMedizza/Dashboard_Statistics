@@ -17,15 +17,13 @@ Nicholas Medizza, Santiago Camargo Carrillo, Joao Aires
 
 The increasing amount of data in the football world create an opportunity to implement statistic analysis in order to try to find new patterns and develop models to predict for example number of goals scored and probability of winning.
 
-Given that our data for this project are not well suited to develope statistic models, we decided to implement a descriptive statistical analysis.
-
-The scope of this project is to develop an interactive dashboard with the aim to help football fans navigate through different plots and tables and discover how teams across different leagues performed from the season 2014/2015 to 2019/2020.
+Given the data and resources available, we can’t develop a statistical model. We have therefore decided to restrict ourselves to a descriptive statistical analysis. The scope of this project is to develop an interactive dashboard in order to allow any football fan to better know about their favorite teams and leagues, from the season 2014/2015 to 2019/2020.
 
 # Data
 
-Our data was downloaded from the website Kaggle (`https://www.kaggle.com/datasets/slehkyi/extended-football-stats-for-european-leagues-xg`) and the two main datasets that have been used are data from each given match played by teams in the top 5 european leagues for 6 seasons (from the season starting in 2014 until the one that began in 2019). The second dataset contains the final position for each league along with related information for the same years. All the columns in the dataset and their respective meaning are reported below.
+Our data was downloaded from the website Kaggle (`https://www.kaggle.com/datasets/slehkyi/extended-football-stats-for-european-leagues-xg`), from which we used 2 datasets. The first one is data from each match played by teams in the top 5 European leagues (Premier League, Bundesliga, La Liga, Ligue 1 and Serie A) for 6 seasons (from the season starting in 2014 until the one in 2019). The second dataset contains the final ranking for each team in each league with related information for the same season. All the columns in the dataset and their respective meaning are reported below.
 
-The standard columns are **league**, **year**, **position**, **scored** (for goals scored), **missed** (for goals conceded), **result**, **date**, **team**, **wins** (for amount of matches won), **draws** (for amount of matches drawed), **loses** (for amount of matches lost), **pts** (for total points), **team**, **position**, **matches** (for amount of matches played) and **h_a** (stating if the match was played at home or away).
+The standard columns are **league**, **year**, **position**, **scored** (for goals scored), **missed** (for goals conceded), **result**, **date**, **team**, **wins** (for amount of matches won), **draws** (for amount of matches drawed), **loses** (for amount of matches lost), **pts** (for total points), **position**, **matches** (for amount of matches played) and **h_a** (stating if the match was played at home or away).
 
 Additional metrics are:
 
@@ -169,7 +167,6 @@ wins <- winjoin |>
   filter(position < 5)
 
 ```
-
 
 # EDA
 
@@ -508,18 +505,15 @@ The second page aims to give an overall understanding, for each of the five leag
 
 Selecting the year and league on the left of the dashboard, the graphs will change the information.
 
-![leagues page overall view](Report_Dashboard_files/screenshots_Dashboard/League_1.png)
-On the second part more interactive plots are shown
+![leagues page overall view](Report_Dashboard_files/screenshots_Dashboard/League_1.png) On the second part more interactive plots are shown
 
 ![League Page](Report_Dashboard_files/screenshots_Dashboard/League_2.png)
 
 ### Comparison across leagues
 
-The last page of this dashboard aims to take into account all the five european leagues in order to asses which leagues performed better and which one is the most competitive.
+The last page of this dashboard seeks to assess which leagues perform better and which one is the most competitive. The user can choose how many leagues to compare, even all of them.
 
-The user can choose if to show all the leagues or only a subset of them.
-
-At the top of the page are shown the teams that won the competition for each league, with the most principal information like number of wins, goal, expected goals etc.
+At the top of the page the champions are shown for each league, with the main information like number of wins, goals, expected goals etc.
 
 ![Summary table](Report_Dashboard_files/screenshots_Dashboard/Comparison_leagues.png)
 
@@ -529,4 +523,6 @@ At the top of the page are shown the teams that won the competition for each lea
 
 ![Total goals and total expected goals scored for each winning team, Total points and Total expected points](Report_Dashboard_files/screenshots_Dashboard/Comparison_leagues4.png)
 
-# conclusion
+# Conclusion
+
+During this project, we tried to put the most relevant and understandable patterns to be handled by the user. Our analyses were limited by the data uploaded because we haven’t collected it by ourselves. So in the future, it would be better to extent the data powering the dashboard using multiple datasets and adding information from new seasons, including the 5 missing matches from the Serie A, which enable us to choose and combine more metrics.
