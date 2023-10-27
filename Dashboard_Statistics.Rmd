@@ -6,6 +6,8 @@ output:
 runtime: shiny
 ---
 
+<!-- centering the title of the dashboard that will be displayed on each page -->
+
 <style>
   .center-text {
     text-align: center;
@@ -16,6 +18,8 @@ runtime: shiny
   The best interactive dashboard on the market with statistics about football in the top 5 leagues
 </div>
 
+
+<!-- In this chunck there is all the code that is required to develop our dashboard and that is not going to be shown on the output -->
 
 ```{r setup, include = FALSE}
 library(flexdashboard) 
@@ -247,11 +251,12 @@ wins <- winjoin |>
 
 
 
-
+<!-- There are three main pages on our dashboard, here the first is defined. The line below define the orientation on how to add new plots and the icon that will represent this page. -->
 
 Team {data-icon="fa-futbol" data-orientation=rows}
 ==========================
 
+<!-- this option allows to create a sidebar on the left of the page where the user can chooose and store his input. The option .sidebar create more pages with tabs -->
 
 Options {.sidebar}
 ------------------------
@@ -290,12 +295,6 @@ renderUI({selectInput("team_opp",
 tabset
 -----------------------------------
 
-<!-- ### tab1  -->
-
-<!-- Here we can see the main statistics for the team (insert team name) and their historic results against team (insert opponents name) -->
-
-<!-- row -->
-<!-- --------------------------- -->
 
 ### Final Position
 ```{r fig.width=1, fig.height=0.5}
@@ -452,6 +451,8 @@ renderPlot({data_per_game |>
 ```
 > Comparison of performance of both teams throughout the season
 
+<!-- with the option .tabset-fade is possible to change the effect on changing a tab -->
+
 row {.tabset .tabset-fade}
 --------------------------
 
@@ -512,7 +513,7 @@ renderPlot({data_per_game |>
 
 ```
 
-
+<!-- the second page of the dashboard is create  -->
 
 National League {data-icon="fa-shield" data-orientation=rows}
 ==============================
@@ -728,6 +729,7 @@ renderPlot({
 ```
 
 
+<!-- creating the last page of the dashboard -->
 
 Comparison across leagues {data-orientation=rows data-icon="fa-globe"}
 =================================

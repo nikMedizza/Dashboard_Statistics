@@ -195,7 +195,6 @@ data_per_game |>
     theme_bw()
 ```
 
-
 ```{r message=FALSE}
 data_per_game |> 
     filter(league == "Bundesliga", 
@@ -218,7 +217,6 @@ data_per_game |>
     labs(x = "Match Day", y = "Goals / Expected Goals") + 
     theme_bw()
 ```
-
 
 **National league**
 
@@ -273,7 +271,6 @@ data_per_club |>
 
 ```
 
-
 **Analysis on the impact of total wins (total losses) of a team on its goals scored per game (goals conceded per game)**
 
 Next, we complement our mentioned approach by interacting the average of goals scored per game and the total wins of a team. Indeed, this approach makes the comparison between teams more "harmonious" since the total of games played are not the same in each league (this is the case of Bundesliga in which 34 games are played). (The scope of study uses the data of the Premier League for the season 2018/2019)
@@ -298,7 +295,6 @@ data_per_club |>
     ggrepel::geom_label_repel(aes(label=position), max.overlaps = Inf) + 
     theme(plot.title = element_text(hjust = 0.5))
 ```
-
 
 This plot shows the link between the average of goals scored per game (in overall) on the total of games won by the team. The ranking of the teams is also added which links up to our previous analyses. And the blue lign represents the average trend of the data.
 
@@ -329,7 +325,6 @@ data_per_club |>
     theme(plot.title = element_text(hjust = 0.5))
 ```
 
-
 **Analysis of a potential league champion due to its total of wins at home and away**
 
 ```{r message=FALSE}
@@ -348,7 +343,6 @@ wins |>
     facet_wrap(~year)
 ```
 
-
 In this part, we used to study the total number of wins at home and away per season of for the 4 first high ranked teams. The goal is to show how much difference there is among those teams in order to assess the fairness of competition and a potential factor to determine the winner. Using both variables enable us to complement this approach. Take note of the assumption that games away are harder to win because of traveling constraints and the hostile atmosphere in the opponent's stadium. In overall, the champion wins the most at home and away games but this is not always the case.
 
 ```{r message=FALSE}
@@ -366,7 +360,6 @@ wins |>
       coord_flip() +
       facet_wrap(~year)
 ```
-
 
 **Comparison across leagues**
 
@@ -409,7 +402,6 @@ data_per_club |> filter(year == 2014,
 
 ```
 
-
 **Comparison of average teams' pressure across the leagues**
 
 ```{r message=FALSE}
@@ -421,7 +413,6 @@ data_per_club |> filter(year == 2014) |>
                       y = "Average teams' pressure per league ") +
                  theme_bw()
 ```
-
 
 **Comparison of total goals scored per league and its volatility across leagues**
 
@@ -455,7 +446,6 @@ data_per_club |> filter(year == 2014) |> group_by(league) |>
                    facet_wrap(~league)
 ```
 
-
 **Analysis of winner league prediction across leagues**
 
 ```{r message=FALSE}
@@ -469,7 +459,6 @@ data_per_club |> filter(position == 1,
                       scale_colour_manual("Total points", breaks = "Points", values = "blue") +
                       theme_bw()
 ```
-
 
 # analysis
 
