@@ -93,6 +93,78 @@ As it is shown above, the dataset containing the information per game is given f
 
 # eda
 
+**Team**
+
+![](images/Santi,%20cummulative%20points%20comparison%20per%20match%20day.png)
+
+![](images/Santi,%20goals%20and%20expected%20goals%20scored%20through%20season.png)
+
+**National league**
+
+In this part, we have analyzed how the values of the variables are spread, analyze the interactions between potential couples and choose the most relevant ones in order to get interesting and understandable results. Especially, to get a broader but brighter view of our research.
+
+**Analysis of the team net performance according to its ranking and its evolution through the years**
+
+First, we analyze the net performance of a team according to their ranking by using the goals difference variable. Moreover, we add the expected goals difference which, coupled with the goals difference line, will indicate performance trends all along the ranking.
+
+![](images/Impact%20of%20overall%20team%20net%20performance%20according%20to%20ranking%20position.png)
+
+Let's begin with it. We notice that first ranked teams over-perform because their attack and defense were better than expected. Conversely, the lowest-ranked teams under-perform. However, there is no dominant trend between middle ranked teams. So, this fact is reiterated throughout all the years and leagues (The data used comes from the Premier League season 2014/2015).
+
+Then, we can notice that both lines decrease. It brings out that the less a team has a difference of goals, the less their ranking is. So this result brings out that teams with a strong defense and a efficient attack have great chances to be high ranked. As depicted by the plot below, this pattern is prevailing throughout all the years for the five leagues of our research.
+
+![](images/Comparison%20of%20overall%20total%20goals%20difference%20throughout%20the%20years.png)
+
+**Analysis on the impact of total wins (total losses) of a team on its goals scored per game (goals conceded per game)**
+
+Next, we complement our mentioned approach by interacting the average of goals scored per game and the total wins of a team. Indeed, this approach makes the comparison between teams more "harmonious" since the total of games played are not the same in each league (this is the case of Bundesliga in which 34 games are played). (The scope of study uses the data of the Premier League for the season 2018/2019)
+
+![](images/Study%20the%20impact%20of%20total%20wins%20on%20its%20goals%20scored%20per%20game.jpg){width="665"}
+
+This plot shows the link between the average of goals scored per game (in overall) on the total of games won by the team. The ranking of the teams is also added which links up to our previous analyses. And the blue lign represents the average trend of the data.
+
+Firstly, we observe that we have a positive trend. Indeed, the more a team wins games, the more it has a higher ratio of goals scored per game. As this fact is strongly supported by the average trend lign. However, it doesn't mean the link is "linear" as we can note in other data settings.
+
+Secondly, we discern that data are more or less concentrated on different areas. In this plot, we remark an area on the upper-right for 2 teams, in the middle for 4 dots and the remaining is spread out from the middle to the lower-left part. This spread inform about the average performance among the league; the more they are equally scattered along the lign, the less there are performance gaps among the teams, which means more balance. And vice-versa.
+
+Conversely, we analyzed the link of the average of goals conceded per game and the total loses of a team. This complement and uphold our previous result which states that the more a team wins, the more he will score in average.
+
+![](images/avg_gconceded%20per%20total%20losses.png){width="664"}
+
+**Analysis of a potential league champion due to its total of wins at home and away**
+
+![](images/Home%20-%20Potential%20league%20champion%20-01.jpg){width="664"}
+
+In this part, we used to study the total number of wins at home and away per season of for the 4 first high ranked teams. The goal is to show how much difference there is among those teams in order to assess the fairness of competition and a potential factor to determine the winner. Using both variables enable us to complement this approach. Take note of the assumption that games away are harder to win because of traveling constraints and the hostile atmosphere in the opponent's stadium. In overall, the champion wins the most at home and away games but this is not always the case.
+
+![](images/Away%20-%20Potential%20league%20champion.jpg)
+
+**Comparison across leagues**
+
+**Evolution of distribution of total goals scored and expected total goals scored for each league**
+
+![](images/Nico,%20distribution%20of%20goals%20scored.png)
+
+**Comparison of net team performance across the leagues**
+
+![](images/Nico,%20difference%20goals%20for%20the%20first%2010th%20teams.png)
+
+**Comparison of average teams' pressure across the leagues**
+
+![](images/Nico,%20Average%20team%20pressure%20within%20the%20league.png)
+
+**Comparison of total goals scored per league and its volatility across leagues**
+
+![](images/Nico,%20trend%20and%20avg%20goals%20scored%20volatility%20analysis%20.png)
+
+**Comparison between average passes completed and average goals scored per match across leagues**
+
+![](images/Nico,%20Avg%20passes%20completed%20per%20goal%20scored.png)
+
+**Analysis of winner league prediction across leagues**
+
+![](images/Nico,%20exp%20total%20pts%20earned.png)
+
 # analysis
 
 ## Dashboard Presentation
