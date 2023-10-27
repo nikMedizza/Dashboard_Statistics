@@ -514,7 +514,7 @@ renderPlot({data_per_game |>
 
 
 
-National League {data-icon="fa-shield"}
+National League {data-icon="fa-shield" data-orientation=rows}
 ==============================
 
 Options {.sidebar}
@@ -543,36 +543,35 @@ selectInput("league_year", "Choose the season:",
 
 
 
-column
+row
 ----------------------------
 
 
-### Difference of goals per ranking position
+### Difference of goals scored per team given the ranking position 
 ```{r}
 renderPlot({
   data_per_club |> 
     filter(league == input$league_league, year == input$league_year) |>
     ggplot() +
-    geom_line(aes(x=position, y=goal_diff, color = "Goals difference")) +
-    geom_point(aes(x=position, y=goal_diff, color = "Goals difference")) +
-    geom_line(aes(x=position, y=no_pen_exp_goal_diff, color = "Expected goals difference")) +
-    geom_point(aes(x=position, y=no_pen_exp_goal_diff, color = "Expected goals difference")) +
+    geom_line(aes(x=position, y=goal_diff, color = "Goals diff")) +
+    geom_point(aes(x=position, y=goal_diff, color = "Goals diff")) +
+    geom_line(aes(x=position, y=no_pen_exp_goal_diff, color = "Exp. goals diff")) +
+    geom_point(aes(x=position, y=no_pen_exp_goal_diff, color = "Exp. goals diff")) +
     scale_y_continuous(breaks = seq(-70,100, by = 5)) +
     scale_x_continuous(breaks = seq(1,20,  by = 1)) +
     theme_bw() +
-    labs(title = "Study the impact of overall team net performance according to ranking position",
-         x = "Ranking position",
+    labs(x = "Ranking position",
          y = "Difference of goals",
          color = "Graph legend",  #In order to change the colour name
          scale_colour_manual("Graph legend", 
-                             breaks = c("Goals difference", 
-                                        "Expected goals difference"), 
+                             breaks = c("Goals diff", 
+                                        "Exp. goals diff"), 
                              values = c("red","green"))) +
     theme(plot.title = element_text(hjust = 0.5))
 })
 ```
 
-
+> As was predictable the best teams have the higher difference. It means that they performed better both in scoring and in the defense
 
 
 
@@ -591,8 +590,7 @@ renderPlot({
     scale_x_continuous(breaks = seq(1,20, by = 1)) +
     scale_y_continuous(breaks = seq(-60,80, by = 10)) +
     theme_bw() +
-    labs(title = "Evolution of overall team net performance throughout the years",
-         x = "Ranking position",
+    labs(x = "Ranking position",
          y = "Difference of goals",
          color = "Years") + 
     theme(plot.title = element_text(hjust = 0.5))
@@ -600,11 +598,13 @@ renderPlot({
 })
 ```
 
+> This plot tries to explain if among difference years there was a change in the difference goals scored per team along the ranking.  
 
-column  {.tabset}
+row {.tabset .tabset-fade}
 -------------------------------
 
-### Plot of average goals scored per game and total wins
+### Goals scored per game and the total wins for each team
+
 
 ```{r}
 
@@ -621,8 +621,7 @@ renderPlot({
     scale_x_continuous(breaks = seq(0,38, by = 1)) +
     scale_y_continuous(breaks = seq(0.50,3, by = 0.25 )) +
     theme_bw() +
-    labs(title = "Study the impact of total wins of a team on its goals scored per game",
-         x = "Number of wins",
+    labs(x = "Number of wins",
          y = "Goals scored per game",
          color = "Teams",
          caption = "The numbers inside the box are the ranking of the team") +
@@ -633,7 +632,8 @@ renderPlot({
 ```
 
 
-### Plot of average goals conceded and total losses
+### Goals conceded per game with the number of total losses for each team
+
 
 ```{r}
 
@@ -650,8 +650,7 @@ renderPlot({
     scale_x_reverse(breaks = seq(0,30,1)) +
     scale_y_continuous(breaks = seq(0.50,3, by = 0.25 )) +
     theme_bw() +
-    labs(title = "Study the impact of total losses of a team on its goals conceded per game",
-         x = "Number of loses",
+    labs(x = "Number of loses",
          y = "Goals conceded per game",
          color = "Teams",
          caption = "The numbers inside the box are the ranking of the team") +
@@ -663,6 +662,7 @@ renderPlot({
 
 ### Link between wins at home and ranking
 
+
 ```{r}
 renderPlot({
   wins |>
@@ -671,10 +671,9 @@ renderPlot({
     geom_bar(stat = "identity", alpha = 0.75) +
     scale_y_continuous(breaks = seq(0,18, by=3)) +
     theme_bw() +
-    labs(title = "Potential league champion due to wins at home",
-         x = "Ranking in the league",
+    labs(x = "Ranking in the league",
          y = "Number of wins at home",
-         fill = "The top 4 teams") +
+         fill = "The top teams for each league") +
     theme(plot.title = element_text(hjust = 0.5)) +
     coord_flip() +
     facet_wrap(~year)
@@ -688,12 +687,11 @@ renderPlot({
   renderPlot({
     wins |>
       filter(league == input$league_league) |>
-      ggplot(aes(x=position, y=home_wins, fill = team)) +
+      ggplot(aes(x=position, y=away_wins, fill = team)) +
       geom_bar(stat = "identity", alpha = 0.75) +
       scale_y_continuous(breaks = seq(0,18, by=3)) +
       theme_bw() +
-      labs(title = "Potential league champion due to wins away",
-           x = "Ranking in the league",
+      labs(x = "Ranking in the league",
            y = "Number of wins away",
            fill = "The top 4 teams") +
       theme(plot.title = element_text(hjust = 0.5)) +
